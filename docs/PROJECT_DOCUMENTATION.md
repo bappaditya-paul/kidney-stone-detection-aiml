@@ -3,6 +3,8 @@
 
 > **System Title:** NephroScan AI (KidneyAI) Clinical Decision Support System  
 > **Primary Focus:** Deep Learning-Assisted Nephrolithiasis Detection & Pelvicalyceal Dilation Assessment  
+> **GitHub Repository:** [github.com/bappaditya-paul/kidney-stone-detection-aiml](https://github.com/bappaditya-paul/kidney-stone-detection-aiml)  
+> **Dataset Source:** [Kaggle Kidney Cancer / Calculus Image Dataset](https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image)  
 > **Imaging Modalities:** B-Mode Renal Ultrasound (Sonography) & Non-Contrast CT Cross-Correlation  
 > **Model Backbone:** MobileNetV2 with Inverted Residual Bottlenecks & Grad-CAM XAI  
 > **Backend Architecture:** Asynchronous FastAPI Microservice with Singleton Inference Engine  
@@ -358,7 +360,7 @@ KidneyAI correlates the deep learning probability $P \in [0.0, 1.0]$ with the sp
 ## 7. Performance Benchmarks & Empirical Validation
 
 ### 7.1 Dataset Composition & Hygiene
-The model was trained, validated, and evaluated on an ultrasound cohort comprising **26,168 total scans**:
+The model was trained, validated, and evaluated on an ultrasound cohort comprising **26,168 total scans** sourced from the [Kaggle Kidney Cancer / Calculus Image Dataset](https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image):
 - **Dataset Cleaning:** Automated SHA-256 hash deduplication was performed via `data_cleaning.py` to eliminate duplicate scans and corrupt files.
 - **Holdout Test Set:** A strictly partitioned, unseen test partition of **1,676 clinical scans** ($838\text{ Normal}$, $838\text{ Calculus}$) was maintained untouched during model selection and hyperparameter tuning.
 

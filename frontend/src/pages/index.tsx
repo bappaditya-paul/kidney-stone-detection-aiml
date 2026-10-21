@@ -206,7 +206,7 @@ Investigational Computer-Aided Diagnostic System
                 <BookOpen size={16} /> Docs
               </Link>
               <a 
-                href="https://www.kaggle.com/datasets/safurahikmat/kidney-stone-ultrasound-image-dataset" 
+                href="https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="flex items-center gap-1.5 hover:text-zinc-900 transition-colors"
@@ -214,7 +214,7 @@ Investigational Computer-Aided Diagnostic System
                 <Database size={16} /> Dataset
               </a>
               <a 
-                href="https://github.com" 
+                href="https://github.com/bappaditya-paul/kidney-stone-detection-aiml" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="flex items-center gap-1.5 hover:text-zinc-900 transition-colors"

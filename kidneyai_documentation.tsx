@@ -44,7 +44,7 @@ export default function App() {
             <a href="#scanner" className="flex items-center gap-2 hover:text-zinc-900 transition-colors">
               <ArrowLeft size={16} /> <span className="hidden sm:inline">Scanner</span>
             </a>
-            <a href="https://github.com" className="flex items-center gap-2 hover:text-zinc-900 transition-colors">
+            <a href="https://github.com/bappaditya-paul/kidney-stone-detection-aiml" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-zinc-900 transition-colors">
               <Github size={16} /> <span className="hidden sm:inline">GitHub</span>
             </a>
           </nav>
@@ -101,7 +101,7 @@ export default function App() {
 
               {/* Quick Stats / Kaggle Link */}
               <div className="flex flex-wrap items-center gap-4 mb-10">
-                <a href="#kaggle" className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white text-sm font-medium rounded-md hover:bg-zinc-800 transition-colors border border-transparent">
+                <a href="https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white text-sm font-medium rounded-md hover:bg-zinc-800 transition-colors border border-transparent">
                   <Database size={16} />
                   View Dataset on Kaggle
                 </a>
