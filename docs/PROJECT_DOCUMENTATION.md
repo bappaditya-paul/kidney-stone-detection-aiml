@@ -544,7 +544,90 @@ To reproduce model training or evaluate checkpoints against the holdout dataset:
 
 ---
 
-## 10. Clinical Notes, Edge Cases & Legal Disclaimer
+## 11. Opensource UI & Frontend Integration Guide
+
+KidneyAI adheres strictly to the **Opensource UI** specification to provide a distraction-free, clinical-grade interface that instills immediate diagnostic trust.
+
+### 11.1 Design System & Aesthetic Principles
+1. **Neutral Stage & Pure Surfaces:**
+   - Backgrounds are strictly flat white (`#FFFFFF`) or near-white (`zinc-50`).
+   - Surfaces are bounded by thin, 1px neutral borders (`neutral-200` / `zinc-200`).
+   - High-contrast neon gradients, heavy dropshadows, and distracting ambient glows are strictly banned.
+2. **Typography Hierarchy:**
+   - **Instrument Serif:** Reserved exclusively for brand headers, main diagnostic titles, and clinical card headings.
+   - **Inter / Geist:** High-legibility sans-serif for numerical metrics, confidence percentages, telemetry labels, and body text.
+3. **Semantic Clinical State Accents:**
+   - **Clinical Emerald (`emerald-600`):** Indicates normal parenchyma, valid ultrasound scans, and negative findings.
+   - **Clinical Rose (`rose-600`):** Indicates calculus pathology, acute obstruction, or out-of-distribution scan rejections.
+   - All other neutral controls, buttons, and panels remain strictly monochrome (`zinc-900`, `zinc-600`, `zinc-100`).
+4. **Physical Tactile Feedback (`rounded-2xl` & Spring Physics):**
+   - Major diagnostic cards use consistent `rounded-2xl` border radii.
+   - Micro-interactions utilize **Framer Motion** spring physics (`stiffness: 320, damping: 24`) to deliver physical weight to user actions without sluggish ease transitions.
+
+### 11.2 Tactile Scan Dropzone Implementation (React / Framer Motion)
+The following snippet from `frontend/src/components/ScanUploader.tsx` demonstrates the tactile spring interaction pattern:
+
+```tsx
+import React, { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { UploadCloud, CheckCircle2 } from "lucide-react";
+
+interface DropzoneProps {
+  onFileAccepted: (file: File) => void;
+  disabled?: boolean;
+}
+
+export const TactileScanDropzone: React.FC<DropzoneProps> = ({ onFileAccepted, disabled }) => {
+  const [isDragActive, setIsDragActive] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragActive(false);
+    if (e.dataTransfer.files?.[0]) {
+      onFileAccepted(e.dataTransfer.files[0]);
+    }
+  };
+
+  return (
+    <motion.div
+      whileHover={{ scale: disabled ? 1.0 : 1.008 }}
+      whileTap={{ scale: disabled ? 1.0 : 0.992 }}
+      transition={{ type: "spring", stiffness: 320, damping: 24 }}
+      onClick={() => !disabled && inputRef.current?.click()}
+      onDragOver={(e) => { e.preventDefault(); setIsDragActive(true); }}
+      onDragLeave={() => setIsDragActive(false)}
+      onDrop={handleDrop}
+      className={`relative border border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors ${
+        isDragActive 
+          ? "border-emerald-500 bg-emerald-50/40" 
+          : "border-neutral-300 bg-zinc-50/60 hover:bg-zinc-50 hover:border-neutral-400"
+      }`}
+    >
+      <input 
+        ref={inputRef} 
+        type="file" 
+        accept="image/jpeg,image/png" 
+        className="hidden" 
+        onChange={(e) => e.target.files?.[0] && onFileAccepted(e.target.files[0])}
+      />
+      <div className="flex flex-col items-center justify-center">
+        <UploadCloud className="text-zinc-400 mb-3" size={36} />
+        <h3 className="font-serif text-xl text-zinc-900 mb-1">
+          Upload B-Mode Ultrasound Scan
+        </h3>
+        <p className="text-xs text-zinc-500 max-w-sm">
+          Drag and drop DICOM exports, JPEG, or PNG files. All scans pass the 4-stage Ultrasound Modality Guard.
+        </p>
+      </div>
+    </motion.div>
+  );
+};
+```
+
+---
+
+## 12. Clinical Notes, Edge Cases & Legal Disclaimer
 
 > [!CAUTION]
 > **Regulatory Notice & Medical AI Disclaimer**  
@@ -557,3 +640,5 @@ To reproduce model training or evaluate checkpoints against the holdout dataset:
 2. **Medullary Sponge Kidney / Nephrocalcinosis:** Diffuse parenchymal calcification may trigger multiple focal highlights without representing acute obstructive calculus disease.
 3. **Renal Artery Calcifications:** Arteriosclerotic calcifications of the renal arterial tree can simulate calculus echoes; Doppler sonography is recommended for differentiating vascular from luminal calcifications.
 4. **Retroperitoneal Bowel Gas:** Acoustic shadowing from gas-filled bowel loops adjacent to the kidney can mimic posterior acoustic shadowing.
+
+
