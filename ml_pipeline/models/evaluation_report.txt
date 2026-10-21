@@ -1,0 +1,24 @@
+
+    ============================
+    MODEL EVALUATION REPORT
+    ============================
+    
+    Accuracy: 0.9887
+    Precision: 0.9887
+    Recall: 0.9887
+    F1-Score: 0.9887
+    
+    ----------------------------
+    Classification Report:
+                  precision    recall  f1-score   support
+
+    no_stone       0.98      0.99      0.99       866
+       stone       0.99      0.98      0.99       810
+
+    accuracy                           0.99      1676
+   macro avg       0.99      0.99      0.99      1676
+weighted avg       0.99      0.99      0.99      1676
+
+    
+    ============================
+    
