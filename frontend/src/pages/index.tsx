@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Head from "next/head";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   UploadCloud, FileType, Loader2, Activity, AlertCircle, 
@@ -197,30 +198,29 @@ Investigational Computer-Aided Diagnostic System
               </span>
             </div>
             
-            <nav className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-500">
-              <a 
+            <nav className="flex items-center gap-6 text-sm font-medium text-zinc-500">
+              <Link 
                 href="/docs" 
-                target="_blank" 
-                rel="noreferrer" 
                 className="flex items-center gap-1.5 hover:text-zinc-900 transition-colors"
               >
-                <BookOpen size={16} /> API Docs
+                <BookOpen size={16} /> Docs
+              </Link>
+              <a 
+                href="https://www.kaggle.com/datasets/safurahikmat/kidney-stone-ultrasound-image-dataset" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center gap-1.5 hover:text-zinc-900 transition-colors"
+              >
+                <Database size={16} /> Dataset
               </a>
-              <span className="flex items-center gap-1.5 text-zinc-400">
-                <Database size={16} /> 26,168 Scans
-              </span>
               <a 
                 href="https://github.com" 
                 target="_blank" 
-                rel="noreferrer" 
+                rel="noopener noreferrer" 
                 className="flex items-center gap-1.5 hover:text-zinc-900 transition-colors"
               >
                 <Github size={16} /> GitHub
               </a>
-              <div className="flex items-center gap-1.5 text-xs text-zinc-400 pl-2 border-l border-neutral-200">
-                <span className={`h-2 w-2 rounded-full ${apiStatus ? "bg-emerald-500" : "bg-amber-500"}`} />
-                <span>{apiStatus ? "FastAPI Online" : "Connecting API"}</span>
-              </div>
             </nav>
           </div>
         </header>
