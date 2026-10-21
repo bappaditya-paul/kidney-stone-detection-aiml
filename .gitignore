@@ -1,0 +1,55 @@
+# ==========================================
+# Python & Environment
+# ==========================================
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+.DS_Store
+*.swp
+*.swo
+
+# ==========================================
+# Datasets & Large Data Folders
+# (Prevents thousands of images being uploaded to GitHub)
+# ==========================================
+raw_dataset/
+raw_dataset_clean/
+data/
+preprocessed_data/
+quarantine/
+temp_image.jpg
+temp_*.jpg
+temp_*.png
+
+# ==========================================
+# Image Formats (case-insensitive)
+# ==========================================
+*.jpg
+*.jpeg
+*.png
+*.JPG
+*.JPEG
+*.PNG
+*.bmp
+*.tiff
+*.webp
+
+# ==========================================
+# NumPy Arrays & Cached Datasets
+# ==========================================
+*.npy
+*.npz
+
+# ==========================================
+# Large Model Weights (Optional: Recommend DVC / Git LFS / Releases)
+# ==========================================
+# Uncomment to exclude large weights from Git:
+# models/*.h5
+# models/*.keras
+# models/*.pt
+# models/*.pth

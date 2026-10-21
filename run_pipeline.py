@@ -15,29 +15,24 @@ from pathlib import Path
 import time
 
 def run_command(command, description):
-    """Run a shell command with error handling."""
+    """Run a shell command with live console output and error handling."""
     print(f"\n{'='*60}")
     print(f"🚀 {description}")
     print(f"⏳ Running: {command}")
-    print("-"*60)
+    print("-" * 60)
     
     start_time = time.time()
     try:
-        result = subprocess.run(
+        subprocess.run(
             command,
             shell=True,
-            check=True,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            check=True
         )
-        print(f"✅ Completed in {time.time() - start_time:.1f} seconds")
+        print(f"\n✅ Completed in {time.time() - start_time:.1f} seconds")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"❌ Error running command: {command}")
+        print(f"\n❌ Error running command: {command}")
         print(f"Exit code: {e.returncode}")
-        print("\nError output:")
-        print(e.stderr)
         return False
 
 def main():
@@ -48,7 +43,7 @@ def main():
     
     # 1. Run data preprocessing
     if not run_command(
-        f'python "{src_dir}/preprocess.py"',
+        f'"{sys.executable}" "{src_dir}/preprocess.py"',
         "Step 1/3: Preprocessing Data"
     ):
         print("\n❌ Preprocessing failed. Exiting...")
@@ -56,7 +51,7 @@ def main():
     
     # 2. Train the model
     if not run_command(
-        f'python "{src_dir}/train_cnn.py"',
+        f'"{sys.executable}" "{src_dir}/train_cnn.py"',
         "Step 2/3: Training Model"
     ):
         print("\n❌ Model training failed. Exiting...")
@@ -64,7 +59,7 @@ def main():
     
     # 3. Evaluate the model
     if not run_command(
-        f'python "{src_dir}/evaluate.py"',
+        f'"{sys.executable}" "{src_dir}/evaluate.py"',
         "Step 3/3: Evaluating Model"
     ):
         print("\n⚠️  Model evaluation completed with issues.")
@@ -79,7 +74,7 @@ def main():
     launch = input("\n🚀 Would you like to launch the Streamlit app? (y/n): ")
     if launch.lower() == 'y':
         print("\nStarting Streamlit app... (Press Ctrl+C to stop)")
-        subprocess.run(["streamlit", "run", "app/streamlit_app.py"])
+        subprocess.run([sys.executable, "-m", "streamlit", "run", "app/streamlit_app.py"])
     
     return 0
 

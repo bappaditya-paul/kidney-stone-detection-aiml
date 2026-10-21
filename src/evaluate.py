@@ -1,7 +1,8 @@
+import sys
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from pathlib import Path
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import (
@@ -13,18 +14,13 @@ from sklearn.metrics import (
     f1_score
 )
 
-# Constants
-IMG_SIZE = (224, 224)
-BATCH_SIZE = 32
+# Ensure project root is on sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Paths
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
-MODEL_DIR = BASE_DIR / "models"
-TEST_DIR = DATA_DIR / "test"
+from src import config
 
-# Class names
-CLASS_NAMES = ['no_stone', 'stone']
 
 def load_test_data():
     """Load and preprocess test data."""
@@ -34,18 +30,19 @@ def load_test_data():
     test_datagen = ImageDataGenerator(rescale=1./255)
     
     test_generator = test_datagen.flow_from_directory(
-        TEST_DIR,
-        target_size=IMG_SIZE,
-        batch_size=BATCH_SIZE,
+        config.TEST_DIR,
+        target_size=config.IMG_SIZE,
+        batch_size=config.BATCH_SIZE,
         class_mode='binary',
         shuffle=False  # Important: don't shuffle for consistent evaluation
     )
     
     return test_generator
 
+
 def load_trained_model():
     """Load the pre-trained model."""
-    model_path = MODEL_DIR / 'best_model.h5'
+    model_path = config.BEST_MODEL_PATH
     
     if not model_path.exists():
         raise FileNotFoundError(
@@ -55,6 +52,7 @@ def load_trained_model():
     
     print(f"🔍 Loading model from {model_path}...")
     return load_model(model_path)
+
 
 def plot_confusion_matrix(y_true, y_pred, class_names):
     """Plot and save confusion matrix."""
@@ -77,7 +75,7 @@ def plot_confusion_matrix(y_true, y_pred, class_names):
     plt.ylabel('True Label')
     
     # Save the figure
-    output_path = MODEL_DIR / 'confusion_matrix_eval.png'
+    output_path = config.MODEL_DIR / 'confusion_matrix_eval.png'
     plt.tight_layout()
     plt.savefig(output_path)
     plt.close()
@@ -110,7 +108,7 @@ def save_evaluation_report(y_true, y_pred, class_names, accuracy, output_path):
     {report}
     
     ============================
-    """.format(accuracy=accuracy, precision=precision, recall=recall, f1=f1, report=report)
+    """
     
     # Save to file
     with open(output_path, 'w') as f:
@@ -142,11 +140,11 @@ def main():
         accuracy = accuracy_score(y_true, y_pred)
         
         # Plot and save confusion matrix
-        cm_path = plot_confusion_matrix(y_true, y_pred, CLASS_NAMES)
+        cm_path = plot_confusion_matrix(y_true, y_pred, config.CLASS_NAMES)
         
         # Save evaluation report
-        report_path = MODEL_DIR / 'evaluation_report.txt'
-        save_evaluation_report(y_true, y_pred, CLASS_NAMES, accuracy, report_path)
+        report_path = config.MODEL_DIR / 'evaluation_report.txt'
+        save_evaluation_report(y_true, y_pred, config.CLASS_NAMES, accuracy, report_path)
         
         # Print summary
         print("\n" + "="*60)
@@ -158,14 +156,14 @@ def main():
         
         # Print classification report to console
         print("\n📋 Classification Report:")
-        print(classification_report(y_true, y_pred, target_names=CLASS_NAMES))
+        print(classification_report(y_true, y_pred, target_names=config.CLASS_NAMES))
         
     except Exception as e:
         print(f"\n❌ ERROR: {str(e)}")
         print("\n💡 Troubleshooting:")
-        print(f"  1. Make sure you've run 'python src/preprocess.py' first")
-        print(f"  2. Then run 'python src/train_cnn.py' to train the model")
-        print(f"  3. Check that {TEST_DIR} contains the test images")
+        print("  1. Make sure you've run 'python src/preprocess.py' first")
+        print("  2. Then run 'python src/train_cnn.py' to train the model")
+        print(f"  3. Check that {config.TEST_DIR} contains the test images")
         return 1
     
     return 0

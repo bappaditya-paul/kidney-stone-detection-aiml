@@ -1,81 +1,65 @@
+"""Kidney Stone Detection: CNN Model Training with Transfer Learning."""
+
 import os
-import numpy as np
+import sys
+from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
-from datetime import datetime
-from pathlib import Path
+import numpy as np
 from sklearn.metrics import confusion_matrix, classification_report
 from tensorflow.keras.applications import MobileNetV2, EfficientNetB0
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
-from tensorflow.keras.models import Model, save_model, load_model
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout, Input
+from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.callbacks import (
-    ModelCheckpoint,
-    EarlyStopping,
-    ReduceLROnPlateau
-)
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 
-# Constants
-IMG_SIZE = (224, 224)
-BATCH_SIZE = 32
-EPOCHS = 15
-LEARNING_RATE = 1e-4
-SEED = 42
+# Ensure project root is on sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Paths
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
-MODEL_DIR = BASE_DIR / "models"
-MODEL_DIR.mkdir(exist_ok=True, parents=True)
-
-# Class names
-CLASS_NAMES = ['no_stone', 'stone']
+from src import config
 
 
 def create_data_generators():
     """Create data generators for training, validation, and testing."""
     print("📊 Creating data generators...")
     
-    # Data augmentation for training
     train_datagen = ImageDataGenerator(
         rescale=1./255,
         rotation_range=20,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        shear_range=0.2,
-        zoom_range=0.2,
+        width_shift_range=0.15,
+        height_shift_range=0.15,
+        shear_range=0.15,
+        zoom_range=0.15,
         horizontal_flip=True,
         fill_mode='nearest'
     )
     
-    # For validation and testing, only rescale
     test_datagen = ImageDataGenerator(rescale=1./255)
     
-    # Training generator
     train_generator = train_datagen.flow_from_directory(
-        DATA_DIR / 'train',
-        target_size=IMG_SIZE,
-        batch_size=BATCH_SIZE,
+        config.TRAIN_DIR,
+        target_size=config.IMG_SIZE,
+        batch_size=config.BATCH_SIZE,
         class_mode='binary',
         shuffle=True,
-        seed=SEED
+        seed=config.SEED
     )
     
-    # Validation generator
     val_generator = test_datagen.flow_from_directory(
-        DATA_DIR / 'val',
-        target_size=IMG_SIZE,
-        batch_size=BATCH_SIZE,
+        config.VAL_DIR,
+        target_size=config.IMG_SIZE,
+        batch_size=config.BATCH_SIZE,
         class_mode='binary',
         shuffle=False
     )
     
-    # Test generator
     test_generator = test_datagen.flow_from_directory(
-        DATA_DIR / 'test',
-        target_size=IMG_SIZE,
-        batch_size=BATCH_SIZE,
+        config.TEST_DIR,
+        target_size=config.IMG_SIZE,
+        batch_size=config.BATCH_SIZE,
         class_mode='binary',
         shuffle=False
     )
@@ -83,34 +67,29 @@ def create_data_generators():
     return train_generator, val_generator, test_generator
 
 
-def build_model(num_classes=1):
+def build_model(backbone="mobilenet_v2"):
     """Build and compile the transfer learning model."""
-    print("🔨 Building the model...")
+    print(f"🔨 Building model with backbone: {backbone}...")
     
-    # Load pre-trained MobileNetV2 model
-    base_model = MobileNetV2(
-        weights='imagenet',
-        include_top=False,
-        input_shape=(*IMG_SIZE, 3)
-    )
+    inputs = Input(shape=(*config.IMG_SIZE, 3))
     
-    # Freeze the base model
+    if backbone == "efficientnet":
+        base_model = EfficientNetB0(weights='imagenet', include_top=False, input_tensor=inputs)
+    else:
+        base_model = MobileNetV2(weights='imagenet', include_top=False, input_tensor=inputs)
+    
     base_model.trainable = False
     
-    # Add custom layers on top
-    inputs = base_model.input
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
     x = Dense(512, activation='relu')(x)
     x = Dropout(0.5)(x)
-    outputs = Dense(num_classes, activation='sigmoid')(x)
+    outputs = Dense(1, activation='sigmoid')(x)
     
-    # Create model
     model = Model(inputs=inputs, outputs=outputs)
     
-    # Compile the model
     model.compile(
-        optimizer=Adam(learning_rate=LEARNING_RATE),
+        optimizer=Adam(learning_rate=config.LEARNING_RATE),
         loss='binary_crossentropy',
         metrics=['accuracy']
     )
@@ -119,129 +98,72 @@ def build_model(num_classes=1):
 
 
 def plot_training_history(history):
-    """Plot training and validation accuracy/loss."""
-    # Create figure with two subplots
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
+    """Plot and save training and validation accuracy/loss."""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
     
-    # Plot accuracy
-    ax1.plot(history.history['accuracy'], label='Training Accuracy')
-    ax1.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    ax1.plot(history.history['accuracy'], label='Train Accuracy')
+    ax1.plot(history.history['val_accuracy'], label='Val Accuracy')
     ax1.set_title('Model Accuracy')
     ax1.set_xlabel('Epoch')
     ax1.set_ylabel('Accuracy')
     ax1.legend()
     
-    # Plot loss
-    ax2.plot(history.history['loss'], label='Training Loss')
-    ax2.plot(history.history['val_loss'], label='Validation Loss')
+    ax2.plot(history.history['loss'], label='Train Loss')
+    ax2.plot(history.history['val_loss'], label='Val Loss')
     ax2.set_title('Model Loss')
     ax2.set_xlabel('Epoch')
     ax2.set_ylabel('Loss')
     ax2.legend()
     
-    # Save the figure
     plt.tight_layout()
-    plt.savefig(MODEL_DIR / 'training_history.png')
+    output_path = config.MODEL_DIR / 'training_history.png'
+    plt.savefig(output_path)
     plt.close()
+    print(f"📊 Training curves saved to: {output_path}")
 
 
-def plot_confusion_matrix(y_true, y_pred, class_names):
-    """Plot and save confusion matrix."""
-    # Calculate confusion matrix
-    cm = confusion_matrix(y_true, y_pred)
-    
-    # Plot confusion matrix
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(
-        cm,
-        annot=True,
-        fmt='d',
-        cmap='Blues',
-        xticklabels=class_names,
-        yticklabels=class_names
-    )
-    
-    plt.title('Confusion Matrix')
-    plt.xlabel('Predicted Label')
-    plt.ylabel('True Label')
-    
-    # Save the figure
-    plt.tight_layout()
-    plt.savefig(MODEL_DIR / 'confusion_matrix.png')
-    plt.close()
-
-
-def evaluate_model(model, test_generator):
-    """Evaluate the model and print metrics."""
-    print("\n📈 Evaluating model on test set...")
-    
-    # Get true labels and predictions
-    y_true = test_generator.classes
-    y_pred_probs = model.predict(test_generator, verbose=1)
-    y_pred = (y_pred_probs > 0.5).astype(int).flatten()
-    
-    # Plot confusion matrix
-    plot_confusion_matrix(y_true, y_pred, CLASS_NAMES)
-    
-    # Print classification report
-    print("\n📊 Classification Report:")
-    print(classification_report(y_true, y_pred, target_names=CLASS_NAMES))
-
-
-def train():
-    """Main training function."""
+def train(epochs=config.EPOCHS, backbone="mobilenet_v2"):
+    """Execute model training pipeline."""
     print("🚀 Starting model training...")
     
-    # Create data generators
     train_generator, val_generator, test_generator = create_data_generators()
+    model = build_model(backbone=backbone)
     
-    # Build and compile model
-    model = build_model()
+    callbacks = [
+        ModelCheckpoint(
+            filepath=config.BEST_MODEL_PATH,
+            monitor='val_accuracy',
+            save_best_only=True,
+            mode='max',
+            verbose=1
+        ),
+        EarlyStopping(
+            monitor='val_loss',
+            patience=5,
+            restore_best_weights=True,
+            verbose=1
+        ),
+        ReduceLROnPlateau(
+            monitor='val_loss',
+            factor=0.2,
+            patience=3,
+            min_lr=1e-6,
+            verbose=1
+        )
+    ]
     
-    # Callbacks
-    checkpoint = ModelCheckpoint(
-        filepath=MODEL_DIR / 'best_model.h5',
-        monitor='val_accuracy',
-        save_best_only=True,
-        mode='max',
-        verbose=1
-    )
-    
-    early_stopping = EarlyStopping(
-        monitor='val_loss',
-        patience=5,
-        restore_best_weights=True,
-        verbose=1
-    )
-    
-    reduce_lr = ReduceLROnPlateau(
-        monitor='val_loss',
-        factor=0.2,
-        patience=3,
-        min_lr=1e-6,
-        verbose=1
-    )
-    
-    # Train the model
-    print("\n🏋️ Starting model training...")
     history = model.fit(
         train_generator,
-        epochs=EPOCHS,
+        epochs=epochs,
         validation_data=val_generator,
-        callbacks=[checkpoint, early_stopping, reduce_lr],
+        callbacks=callbacks,
         verbose=1
     )
     
-    # Save the final model
-    model.save(MODEL_DIR / 'final_model.h5')
-    
-    # Plot training history
+    model.save(config.FINAL_MODEL_PATH)
     plot_training_history(history)
     
-    # Evaluate the model
-    evaluate_model(model, test_generator)
-    
-    print(f"\n✅ Training completed! Models and plots saved in: {MODEL_DIR}")
+    print(f"\n✅ Training complete! Best model saved at: {config.BEST_MODEL_PATH}")
 
 
 if __name__ == "__main__":

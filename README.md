@@ -1,123 +1,106 @@
-# Kidney Stone Detection using CNN
+# NephroScan AI: Kidney Stone Ultrasound Detection & Diagnostic Suite
 
-This project implements a deep learning model to detect kidney stones in ultrasound images using Convolutional Neural Networks (CNN) with transfer learning.
+Deep learning medical imaging pipeline and interactive clinical dashboard to detect nephrolithiasis (kidney stones) in B-mode ultrasound scans using Convolutional Neural Networks (MobileNetV2 Transfer Learning), Explainable AI (Grad-CAM), and Out-Of-Distribution (OOD) modality validation.
 
-## Features
+---
 
-- **Data Preprocessing**: Handles image resizing, normalization, and data augmentation
-- **Model Training**: Uses MobileNetV2 with transfer learning
-- **Evaluation**: Provides comprehensive metrics and visualizations
-- **Web Interface**: User-friendly Streamlit web app
-- **Command-line Tools**: For batch prediction and evaluation
-
-## Project Structure
+## 🩺 System Architecture & Pipeline
 
 ```
+kidney-stone-detection-aiml/
 ├── app/
-│   └── streamlit_app.py    # Web interface
-├── data/                   # Processed dataset (created during preprocessing)
-├── models/                 # Saved models and training history
-├── preprocessed_data/      # Preprocessed numpy arrays
-├── raw_dataset/            # Original dataset
-│   ├── stone/              # Kidney stone images
-│   └── no_stone/           # Normal kidney images
+│   └── streamlit_app.py        # Clinical Streamlit Web App (Grad-CAM, Pelvicalyceal Dilation)
+├── models/
+│   ├── best_model.h5           # High-accuracy MobileNetV2 checkpoint (98.87% accuracy)
+│   ├── confusion_matrix_eval.png
+│   └── evaluation_report.txt
 ├── src/
-│   ├── preprocess.py       # Data preprocessing
-│   ├── train_cnn.py        # Model training
-│   ├── evaluate.py         # Model evaluation
-│   └── predict_image.py    # Single image prediction
-├── requirements.txt        # Python dependencies
-└── run_pipeline.py         # Complete pipeline script
+│   ├── __init__.py             # Python ML package exports
+│   ├── config.py               # Centralized hyperparameters, paths & modality thresholds
+│   ├── modality_guard.py       # Out-Of-Distribution (OOD) guard (rejects non-ultrasound photos)
+│   ├── gradcam.py              # Grad-CAM heatmap generator for focal calculus localization
+│   ├── predict_image.py        # Core inference engine & clinical advisory logic
+│   ├── preprocess.py           # Automated dataset partitioning & data generators
+│   ├── train_cnn.py            # Transfer learning training loop with early stopping
+│   ├── evaluate.py             # Metric calculation (Accuracy, F1, Precision, Recall)
+│   └── data_cleaning.py        # Dataset corruption scan & duplicate detection utility
+├── data/                       # Local train/val/test splits (gitignored)
+├── raw_dataset/                # Local original dataset (gitignored)
+├── requirements.txt            # Python dependencies
+├── run_pipeline.py             # End-to-end pipeline execution script
+└── .gitignore                  # Full protection preventing images & weights leaking to GitHub
 ```
 
-## Installation
+---
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd KIDNEY-STONE-DETECTION-USING-AIML
-   ```
+## 🚀 Key Improvements & Features
 
-2. Create and activate a virtual environment (recommended):
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+1. **Out-of-Distribution Modality Guard (`src/modality_guard.py`)**:
+   - Closed-world binary CNNs erroneously predict 100% on random non-medical images (e.g. photos of animals, cars, landscapes).
+   - The modality guard inspects chromaticity saturation, RGB channel divergence, dynamic contrast, and speckle noise variance to reject non-ultrasound inputs prior to inference.
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+2. **Explainable AI with Grad-CAM (`src/gradcam.py`)**:
+   - Visualizes the convolutional activation map (`out_relu` layer) directly onto the ultrasound scan.
+   - Highlights the exact hyperechoic calculus focus and posterior acoustic shadowing region.
 
-## Usage
+3. **Clinical Pelvicalyceal Dilation & Severity Index**:
+   - Estimates obstruction severity, hydronephrosis risk (Low, Moderate, Elevated), and outputs evidence-based urological advisory recommendations.
 
-### 1. Run Complete Pipeline
+4. **Zero-Leakage Git Protection**:
+   - `.gitignore` strictly protects datasets (`raw_dataset/`, `data/`, `*.jpg`, `*.png`, `*.npy`) from accidental commits to GitHub while keeping all images safe on your local drive.
+
+---
+
+## 🛠️ Installation & Setup
+
+Ensure Python 3.10 or 3.11 is installed (TensorFlow 2.x supports Python $\le$ 3.11):
 
 ```bash
-python run_pipeline.py
+# 1. Create a virtual environment
+python3.11 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# 2. Install requirements
+pip install -r requirements.txt
 ```
 
-This will:
-1. Preprocess the data
-2. Train the model
-3. Evaluate the model
-4. Optionally launch the web app
+---
 
-### 2. Run Individual Components
+## 💻 How to Run
 
-#### Data Preprocessing
+### 1. Launch the Clinical Web Application
 ```bash
-python src/preprocess.py
+streamlit run app/streamlit_app.py
+```
+Open [http://localhost:8501](http://localhost:8501) in your browser.
+
+### 2. Run Inference on a Single Image via CLI
+```bash
+python src/predict_image.py path/to/ultrasound.jpg
 ```
 
-#### Model Training
+### 3. Evaluate Model on Test Dataset
+```bash
+python src/evaluate.py
+```
+*Current benchmark on 1,676 test scans:*
+- **Accuracy**: 98.87%
+- **Weighted Precision**: 0.99
+- **Weighted Recall**: 0.98
+- **Weighted F1-Score**: 0.99
+
+### 4. Re-train the CNN Architecture
 ```bash
 python src/train_cnn.py
 ```
 
-#### Model Evaluation
+### 5. Run the Entire Pipeline Automatically
 ```bash
-python src/evaluate.py
+python run_pipeline.py
 ```
 
-#### Web Application
-```bash
-streamlit run app/streamlit_app.py
-```
+---
 
-### 3. Predict on a Single Image
+## 🔒 Privacy & Data Safety
 
-```bash
-python src/predict_image.py path/to/your/image.jpg
-```
-
-## Dataset
-
-Place your dataset in the following structure:
-```
-raw_dataset/
-├── stone/       # Kidney stone images
-└── no_stone/    # Normal kidney images
-```
-
-## Model Architecture
-
-- **Base Model**: MobileNetV2 with pre-trained weights (ImageNet)
-- **Input Size**: 224x224 pixels
-- **Output**: Binary classification (Stone/No Stone)
-- **Optimizer**: Adam (learning rate = 1e-4)
-- **Loss Function**: Binary Cross-Entropy
-
-## Results
-
-Model performance metrics will be saved in the `models/` directory after training and evaluation.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Dataset: [Your dataset source]
-- TensorFlow/Keras for deep learning framework
-- Streamlit for the web interface..
+All dataset images are strictly retained on your local system and excluded from Git tracking via `.gitignore`. No medical imaging data is uploaded to remote repositories.
