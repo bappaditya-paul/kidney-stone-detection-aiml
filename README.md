@@ -1,18 +1,34 @@
-# NephroScan AI (KidneyAI)
-
 <div align="center">
+
+# 🩺 KidneyAI (NephroScan AI)
+### Clinical-Grade Deep Learning Decision Support System for Renal Calculus Detection, Explainable AI (Grad-CAM), and Pelvicalyceal Hydronephrosis Grading
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](https://opensource.org/licenses/MIT)
 [![Python: 3.11+](https://img.shields.io/badge/Python-3.11+-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![TensorFlow: 2.15+](https://img.shields.io/badge/TensorFlow-2.15+-FF6F00.svg?logo=tensorflow&logoColor=white)](https://tensorflow.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![FastAPI: 0.110+](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Next.js: 14](https://img.shields.io/badge/Next.js-14.2-000000.svg?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![Test Accuracy: 98.87%](https://img.shields.io/badge/Test_Accuracy-98.87%25-success.svg)](https://github.com/bappaditya-paul/kidney-stone-detection-aiml)
+[![Modality Guard](https://img.shields.io/badge/Modality_Guard-OOD_Protected-blue.svg)](https://github.com/bappaditya-paul/kidney-stone-detection-aiml)
+[![Docker Ready](https://img.shields.io/badge/Docker-Multi--stage_Built-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
 [![Kaggle Dataset](https://img.shields.io/badge/Kaggle-Dataset-20BEFF.svg?logo=kaggle&logoColor=white)](https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image)
 
-**An open-source deep learning clinical decision support system for B-mode renal ultrasound calculus detection, secondary pelvicalyceal dilation assessment, and explainable AI triage.**
+<p align="center">
+  <a href="http://localhost:3000"><strong>🌐 Live Clinical Dashboard</strong></a> •
+  <a href="http://localhost:3000/docs"><strong>📖 Interactive Documentation Portal</strong></a> •
+  <a href="http://localhost:8000/docs"><strong>⚡ FastAPI Swagger API</strong></a> •
+  <a href="https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image"><strong>📊 Kaggle Dataset</strong></a>
+</p>
 
-[Live Clinical Scanner](http://localhost:3000) • [Interactive Documentation](http://localhost:3000/docs) • [FastAPI Swagger](http://localhost:8000/docs) • [Kaggle Dataset](https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image)
+---
+
+### 🖥️ Clinical Web Cockpit
+<p align="center">
+  <img src="docs/assets/kidneyai_hero.png" alt="KidneyAI - Clinical Renal Scan Analysis Platform" width="100%" style="border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 12px 36px rgba(0,0,0,0.08);" />
+</p>
+<p align="center">
+  <em>Figure 1: KidneyAI Tactical Ingestion Interface — Minimalist Opensource UI design with tactile drag-and-drop, instant calculus grading, and explainable AI visualization.</em>
+</p>
 
 </div>
 
@@ -22,13 +38,13 @@
 - [Executive Overview](#-executive-overview)
 - [Key Innovations & AI Pillars](#-key-innovations--ai-pillars)
 - [System Architecture](#-system-architecture)
+- [Holdout Validation & Clinical Benchmarks](#-holdout-validation--clinical-benchmarks)
 - [Repository Directory Structure](#-repository-directory-structure)
-- [Independent Holdout Benchmarks](#-independent-holdout-benchmarks)
 - [Quickstart Guide](#-quickstart-guide)
 - [FastAPI Microservice Endpoints](#-fastapi-microservice-endpoints)
-- [Dataset & Training Hygiene](#-dataset--training-hygiene)
-- [Frontend Clinical Interface (Opensource UI)](#-frontend-clinical-interface-opensource-ui)
+- [Production Deployment Guide](#-production-deployment-guide)
 - [Clinical Disclaimers & Ethics](#-clinical-disclaimers--ethics)
+- [Authors & License](#-authors--license)
 
 ---
 
@@ -36,10 +52,10 @@
 
 Nephrolithiasis (kidney stone disease) affects over **10% to 12% of the global population**, with 5-year recurrence rates exceeding **50%**. Acute stone impaction in the renal collecting system obstructs urine outflow, triggering secondary **hydronephrosis (pelvicalyceal dilation)** and acute renal colic.
 
-While non-contrast computed tomography (NCCT) is historically sensitive, clinical guidelines from the **European Association of Urology (EAU)** and **American Urological Association (AUA)** mandate **B-mode renal ultrasound as the primary initial imaging modality** due to:
-1. **Zero Ionizing Radiation:** Crucial for recurrent stone formers, pediatric patients, and pregnant women.
-2. **Bedside POCUS Accessibility:** Immediate triage in emergency departments and rural clinics.
-3. **Dynamic Assessment:** Evaluates parenchymal echogenicity and acoustic shadowing in real-time.
+While non-contrast computed tomography (NCCT) is historically sensitive, clinical guidelines from the **European Association of Urology (EAU)** and **American Urological Association (AUA)** designate **B-mode renal ultrasound as the primary frontline imaging modality** due to:
+1. **Zero Ionizing Radiation:** Indispensable for pediatric patients, pregnant women, and recurrent stone formers receiving frequent follow-ups.
+2. **Bedside POCUS Accessibility:** Instant evaluation in emergency departments, rural clinics, and low-resource settings.
+3. **Real-Time Acoustic Interrogation:** Immediate visualization of parenchymal acoustic impedance and acoustic shadowing.
 
 **KidneyAI** combines high-performance transfer learning (**MobileNetV2**), an **Out-Of-Distribution (OOD) Modality Guard**, **Grad-CAM Explainable AI**, and an asynchronous **FastAPI + Next.js microservice architecture** to deliver instant, high-trust diagnostic verification.
 
@@ -60,31 +76,31 @@ While non-contrast computed tomography (NCCT) is historically sensitive, clinica
  Rejects Non-Medical 88% FLOP Reduction  Jet Colormap        4-Tier Grading
 ```
 
-### 1. The Ultrasound Modality Guard (OOD Prevention)
-* **The Problem:** Standard binary CNNs (sigmoid: $\sigma(W \cdot x + b)$) operate in a closed world. When users upload non-medical images (e.g. photos of pandas, cars, landscapes, or text), high-contrast borders trigger hyperechoic filters, producing **100% false-positive stone detections**.
-* **Our Solution:** Prior to allocating GPU/CPU memory for neural inference, the image must pass 4 physical acoustic gates:
-  1. **HSV Color Saturation Gate:** $\overline{S} \le 0.18$ & high-saturation fraction $\le 0.12$ (rejects chromatic photography).
-  2. **RGB Inter-Channel Divergence Gate:** $\Delta_{\text{RGB}} = \frac{1}{N} \sum (|R-G| + |G-B| + |B-R|) \le 16.0$ (enforces monochromatic B-mode gray).
-  3. **Acoustic Speckle Texture Gate:** Discrete Laplacian variance $\text{Var}(\nabla^2 I) \ge 8.0$ (detects cellular wave interference, rejecting flat digital art and text).
-  4. **Dynamic Intensity & Contrast Gate:** $\sigma_I \ge 15.0$ and $8.0 \le \mu_I \le 235.0$ (purges blank probe-off frames).
+### 1. 🛡️ Ultrasound Modality Guard (OOD False-Positive Rejection)
+Standard binary CNNs operate in a closed-world assumption. When users accidentally upload non-medical images (e.g. photos of pets, documents, or outdoor scenes), high-contrast borders trigger hyperechoic convolutional filters, producing **severe false-positive stone detections**.
 
-### 2. Edge-Optimized MobileNetV2 Architecture
-* Utilizes **depthwise separable convolutions** with inverted residual linear bottlenecks, delivering an **88.8% reduction in computational FLOPs** compared to standard CNNs:
+Prior to allocating CPU/GPU compute, KidneyAI enforces **4 physical acoustic invariant gates**:
+* **HSV Color Saturation Gate:** $\overline{S} \le 0.18$ & high-saturation fraction $\le 0.12$ (rejects chromatic natural photography).
+* **RGB Channel Divergence Gate:** $\Delta_{\text{RGB}} = \frac{1}{N} \sum (|R-G| + |G-B| + |B-R|) \le 16.0$ (enforces monochromatic B-mode acoustic gray).
+* **Acoustic Speckle Texture Gate:** Discrete Laplacian variance $\text{Var}(\nabla^2 I) \ge 8.0$ (validates constructive/destructive wave interference, rejecting flat digital art and text).
+* **Dynamic Intensity & Contrast Gate:** $\sigma_I \ge 15.0$ and $8.0 \le \mu_I \le 235.0$ (purges blank probe-off or saturated frames).
+
+### 2. ⚡ MobileNetV2 Deep Feature Extractor
+* Employs **depthwise separable convolutions** with inverted residual linear bottlenecks, delivering an **88.8% computational FLOP reduction** compared to conventional dense CNN backbones:
   $$\frac{\text{Cost}_{\text{Separable}}}{\text{Cost}_{\text{Standard}}} \approx \frac{1}{N} + \frac{1}{D_k^2} \approx \frac{1}{3^2} = \frac{1}{9}$$
-* **Tensor Pipeline:** $(224 \times 224 \times 3) \rightarrow \text{MobileNetV2 Base} \rightarrow \text{out\_relu } (7 \times 7 \times 1280) \rightarrow \text{GAP} \rightarrow \text{Dropout}(0.3) \rightarrow \text{Dense}(128, \text{ReLU}) \rightarrow \text{Dense}(1, \text{Sigmoid})$.
+* **Tensor Flow:** $(224 \times 224 \times 3) \rightarrow \text{MobileNetV2 Base} \rightarrow \text{out\_relu } (7 \times 7 \times 1280) \rightarrow \text{GAP} \rightarrow \text{Dropout}(0.3) \rightarrow \text{Dense}(128, \text{ReLU}) \rightarrow \text{Dense}(1, \text{Sigmoid})$.
 
-### 3. Explainable AI (XAI) via Grad-CAM
-* Doctors cannot trust raw scalar outputs ($P=0.96$).
-* Extracts feature map gradients from the final convolutional layer (`out_relu`):
-  $$\alpha_k^c = \frac{1}{Z} \sum_{i=1}^{U} \sum_{j=1}^{V} \frac{\partial y^c}{\partial A_{i, j}^k}, \quad L_{\text{Grad-CAM}}^c = \text{ReLU}\left( \sum_k \alpha_k^c A^k \right)$$
-* Generates an alpha-composited Jet heatmap ($0.65 \cdot I_{\text{Original}} + 0.35 \cdot \text{ColorMap}_{\text{JET}}(L^c)$) proving the AI is focused on the genuine hyperechoic calculus and acoustic shadow.
+### 3. 🔍 Explainable AI (Grad-CAM Saliency)
+Clinicians cannot base interventions on opaque scalar probabilities ($P=0.96$). KidneyAI computes feature-map gradients from the final convolutional layer (`out_relu`):
+$$\alpha_k^c = \frac{1}{Z} \sum_{i=1}^{U} \sum_{j=1}^{V} \frac{\partial y^c}{\partial A_{i, j}^k}, \quad L_{\text{Grad-CAM}}^c = \text{ReLU}\left( \sum_k \alpha_k^c A^k \right)$$
+The resulting activation map is alpha-composited over the original scan ($0.65 \cdot I_{\text{Original}} + 0.35 \cdot \text{ColorMap}_{\text{JET}}(L^c)$), visually verifying whether the network is focused on genuine hyperechoic calculus foci and posterior acoustic shadows.
 
-### 4. Pelvicalyceal Dilation & Severity Index
-* Translates binary prediction confidence and spatial stone footprint into actionable urological obstruction grading:
-  * **$P < 0.50$ (Normal / Low Risk):** Unremarkable parenchyma, 0% hydronephrosis risk.
-  * **$0.50 \le P \le 0.65$ (Borderline / Small):** Minimal pelvic separation ($\le 5\text{ mm}$), ~25% risk.
-  * **$0.65 < P \le 0.85$ (Moderate Calculus):** Definite dilation ($\sim 10 - 15\text{ mm}$), ~50% risk.
-  * **$P > 0.85$ (Acute Obstructive):** Marked caliceal ballooning, >75% risk. Urgent urology consult.
+### 4. 📊 Secondary Pelvicalyceal Dilation & Severity Index
+Translates prediction confidence and spatial stone footprint into actionable urological obstruction grading:
+* **$P < 0.50$ (Normal / Unremarkable):** Unremarkable parenchyma, 0% hydronephrosis risk.
+* **$0.50 \le P \le 0.65$ (Borderline / Small Calculus):** Minimal pelvic separation ($\le 5\text{ mm}$), ~25% hydronephrosis risk.
+* **$0.65 < P \le 0.85$ (Moderate Calculus):** Definite dilation ($\sim 10 - 15\text{ mm}$), ~50% hydronephrosis risk.
+* **$P > 0.85$ (Acute Calculus / Obstructive):** Marked caliceal ballooning, >75% hydronephrosis risk. Urgent urological evaluation advised.
 
 ---
 
@@ -92,11 +108,12 @@ While non-contrast computed tomography (NCCT) is historically sensitive, clinica
 
 ```mermaid
 flowchart TD
-    subgraph Client["Clinical Presentation Tier (Next.js / React)"]
+    subgraph Client["Clinical Presentation Tier (Next.js 14 / TypeScript)"]
         UI["Clinical Cockpit UI<br/>(Opensource UI / Instrument Serif)"]
         Upload["Tactile Ingestion Dropzone<br/>(Framer Motion Spring Physics)"]
         Viewer["Side-by-Side Diagnostic Viewer<br/>(Original Scan vs. Grad-CAM)"]
         Metrics["Telemetry Cards & Severity Badge<br/>(Calculus %, Dilation Status)"]
+        Docs["Interactive 8-Tab Docs Portal<br/>(/docs Clinical Knowledge Base)"]
     end
 
     subgraph API["Backend Microservice Tier (FastAPI / Python 3.11)"]
@@ -109,9 +126,9 @@ flowchart TD
 
     subgraph ML["Deep Learning Core (MobileNetV2 Checkpoint)"]
         Preprocess["Tensor Normalization<br/>(224x224x3, rescale=1/255)"]
-        Backbone["MobileNetV2 Feature Extractor<br/>(ImageNet Weights, Frozen)"]
+        Backbone["MobileNetV2 Feature Extractor<br/>(Frozen Inverted Residuals)"]
         Head["Classification Head<br/>(GAP -> Dropout -> Dense -> Sigmoid)"]
-        Weights[("best_model.h5<br/>16.6 MB Checkpoint")]
+        Weights[("best_model.h5<br/>17.4 MB Checkpoint")]
     end
 
     Upload -->|"Multipart Form Upload"| Router
@@ -133,15 +150,39 @@ flowchart TD
 
 ---
 
+## 📊 Holdout Validation & Clinical Benchmarks
+
+The model was rigorously evaluated against an independent, strictly isolated holdout test split of **1,676 clinical ultrasound scans**:
+
+$$\text{Overall Test Accuracy} = \frac{TP + TN}{TP + TN + FP + FN} = \mathbf{98.87\%}$$
+
+| Classification Class | Precision | Recall (Sensitivity) | F1-Score | Specificity | Holdout Test Scans |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Normal (No Stone)** | **0.990** | **0.987** | **0.989** | **0.990** | 838 |
+| **Calculus (Stone Present)** | **0.988** | **0.990** | **0.989** | **0.987** | 838 |
+| **Macro Weighted Average** | **0.990** | **0.989** | **0.989** | **0.989** | **1,676** |
+
+<div align="center">
+
+| Confusion Matrix Evaluation | Training & Validation Curves |
+| :---: | :---: |
+| <img src="docs/assets/confusion_matrix.png" alt="Confusion Matrix Evaluation" width="440px" style="border-radius: 8px; border: 1px solid #e2e8f0;" /> | <img src="docs/assets/training_history.png" alt="Training History Curves" width="440px" style="border-radius: 8px; border: 1px solid #e2e8f0;" /> |
+| *True Positives: 830 \| True Negatives: 827 \| False Positives: 11 \| False Negatives: 8* | *Loss convergence with Adam optimizer ($10^{-4}$) and early stopping.* |
+
+</div>
+
+---
+
 ## 📂 Repository Directory Structure
 
 ```
 kidney-stone-detection-aiml/
 ├── backend/                        # FastAPI High-Performance Microservice
-│   ├── Dockerfile                  # Containerization specification
+│   ├── Dockerfile                  # Self-contained container specification
+│   ├── .dockerignore               # Backend build isolation rules
 │   ├── requirements.txt            # Python dependencies (FastAPI, TensorFlow, OpenCV)
 │   └── app/
-│       ├── main.py                 # FastAPI app initialization, CORS & lifespan
+│       ├── main.py                 # FastAPI initialization, CORS regex & lifespan
 │       ├── config.py               # Environment variables & modality guard thresholds
 │       ├── api/v1/
 │       │   ├── endpoints.py        # /predict, /validate, /health routes
@@ -151,19 +192,23 @@ kidney-stone-detection-aiml/
 │           ├── modality_guard.py   # 4-stage acoustic physics OOD filter
 │           └── gradcam_service.py  # out_relu gradient calculation & Jet blending
 │
-├── frontend/                       # Clinical Cockpit UI (Next.js / React)
+├── frontend/                       # Clinical Cockpit UI (Next.js 14 / TypeScript)
+│   ├── Dockerfile                  # Multi-stage production standalone container
+│   ├── .dockerignore               # Frontend build isolation rules
 │   ├── package.json                # Next.js 14, Tailwind CSS, Framer Motion, Lucide
-│   ├── tailwind.config.js          # Neutral clinical tokens & Instrument Serif setup
+│   ├── next.config.js              # Standalone output mode enabled
 │   └── src/
 │       ├── pages/
 │       │   ├── _app.tsx            # Global layout & Instrument Serif / Inter imports
 │       │   ├── index.tsx           # Clinical Scanner with 3-state Framer Motion transitions
-│       │   └── docs.tsx            # Interactive 8-tab GeeksforGeeks/DeepLearning.AI docs portal
+│       │   └── docs.tsx            # Interactive 8-tab medical knowledge base portal
 │       ├── components/
 │       │   ├── ScanUploader.tsx    # Tactile dropzone with Framer Motion spring physics
-│       │   └── HeatmapViewer.tsx   # Side-by-side ultrasound vs. Grad-CAM viewer
+│       │   ├── HeatmapViewer.tsx   # Side-by-side ultrasound vs. Grad-CAM viewer
+│       │   ├── MetricCards.tsx     # Diagnosis, confidence & severity badges
+│       │   └── ClinicalAdvisory.tsx# Detailed urological guidance panel
 │       └── styles/
-│           └── globals.css         # Tailwind v4 directives & typography tokens
+│           └── globals.css         # Modern typography & clinical tokens
 │
 ├── ml_pipeline/                    # Modular Machine Learning Pipeline
 │   ├── config.py                   # Hyperparameters, tensor dimensions, paths
@@ -171,45 +216,23 @@ kidney-stone-detection-aiml/
 │   ├── train.py                    # Transfer learning training loop with early stopping
 │   ├── evaluate.py                 # Holdout metric evaluation & confusion matrix
 │   ├── models/
-│   │   ├── best_model.h5           # 16.6 MB MobileNetV2 trained checkpoint
-│   │   └── confusion_matrix_eval.png
+│   │   ├── best_model.h5           # 17.4 MB canonical MobileNetV2 trained weights
+│   │   └── evaluation_report.txt   # Precision, recall, and classification metrics
 │   └── notebooks/
 │       └── eda_and_error_analysis.ipynb
 │
 ├── docs/                           # Publication-Grade System Documentation
-│   └── PROJECT_DOCUMENTATION.md    # 600+ line technical & clinical specification
+│   ├── PROJECT_DOCUMENTATION.md    # 600+ line technical & clinical specification
+│   └── assets/                     # High-resolution screenshots and benchmark plots
+│       ├── kidneyai_hero.png
+│       ├── confusion_matrix.png
+│       └── training_history.png
 │
 ├── docker-compose.yml              # Multi-container orchestration (Backend + Frontend)
-├── run_all.sh                      # Unified bash launcher with graceful Ctrl+C shutdown
+├── run_all.sh                      # Unified bash launcher with graceful shutdown
 ├── run_all.py                      # Python cross-platform launcher
-├── requirements.txt                # Root convenience requirements
+├── requirements.txt                # Convenience requirements specification
 └── .gitignore                      # Complete protection preventing dataset leakage
-```
-
----
-
-## 📊 Independent Holdout Benchmarks
-
-The model was evaluated against an independent, strictly isolated holdout test split of **1,676 clinical ultrasound scans**:
-
-$$\text{Overall Test Accuracy} = \frac{TP + TN}{TP + TN + FP + FN} = \mathbf{98.87\%}$$
-
-| Classification Class | Precision | Recall (Sensitivity) | F1-Score | Specificity | Holdout Test Scans |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Normal (Class 0)** | $0.990$ | $0.987$ | $0.989$ | $0.990$ | 838 |
-| **Calculus (Class 1)** | $0.988$ | $0.990$ | $0.989$ | $0.987$ | 838 |
-| **Macro Weighted Average** | **$0.99$** | **$0.98$** | **$0.99$** | **$0.99$** | **1,676** |
-
-### Confusion Matrix Breakdown
-- **True Positives ($TP$):** **830** stone scans correctly detected ($99.04\%$ sensitivity).
-- **True Negatives ($TN$):** **827** normal scans correctly confirmed ($98.68\%$ specificity).
-- **False Positives ($FP$):** **11** normal scans classified as stone ($< 1.32\%$).
-- **False Negatives ($FN$):** **8** stone scans missed ($< 0.96\%$).
-
-```
-                      PREDICTED NORMAL      PREDICTED CALCULUS
-ACTUAL NORMAL              827 (TN)               11 (FP)
-ACTUAL CALCULUS              8 (FN)              830 (TP)
 ```
 
 ---
@@ -217,42 +240,47 @@ ACTUAL CALCULUS              8 (FN)              830 (TP)
 ## ⚡ Quickstart Guide
 
 ### Option 1: Unified Single-Command Launch (Recommended)
-Launch all 3 tiers (ML environment verification, FastAPI backend on Port 8000, and Next.js frontend on Port 3000) simultaneously:
+Starts all tiers simultaneously: verifies ML checkpoint, starts the FastAPI backend on Port `8000`, and launches the Next.js frontend on Port `3000`:
 
 ```bash
 # Clone the repository
 git clone https://github.com/bappaditya-paul/kidney-stone-detection-aiml.git
 cd kidney-stone-detection-aiml
 
-# Make the runner executable and launch
+# Make the unified runner executable and launch
 chmod +x run_all.sh
 ./run_all.sh
 ```
-* Or on Windows / cross-platform: `python run_all.py`
+*On Windows / cross-platform:*
+```bash
+python run_all.py
+```
 
 Once launched:
-- **Clinical Web Scanner:** [http://localhost:3000](http://localhost:3000)
-- **Interactive Documentation Portal:** [http://localhost:3000/docs](http://localhost:3000/docs)
-- **FastAPI OpenAPI Swagger:** [http://localhost:8000/docs](http://localhost:8000/docs)
+* **Clinical Web Scanner:** [http://localhost:3000](http://localhost:3000)
+* **Interactive Documentation Portal:** [http://localhost:3000/docs](http://localhost:3000/docs)
+* **FastAPI OpenAPI Swagger:** [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
 ### Option 2: Docker Compose Orchestration
+Builds the standalone multi-stage Next.js image and self-contained FastAPI container:
+
 ```bash
-docker-compose up --build -d
+docker-compose up --build
 ```
 
 ---
 
-### Option 3: Manual Step-by-Step Setup
+### Option 3: Manual Component Setup
 
 #### 1. Backend Microservice
 ```bash
 cd backend
-python3.11 -m venv .venv
-source .venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate    # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 #### 2. Frontend Application
@@ -260,15 +288,6 @@ uvicorn app.main:app --reload --port 8000
 cd frontend
 npm install
 npm run dev
-```
-
-#### 3. Evaluate / Retrain ML Pipeline
-```bash
-# Evaluate existing checkpoint
-.venv/bin/python ml_pipeline/evaluate.py
-
-# Retrain model from scratch
-.venv/bin/python ml_pipeline/train.py
 ```
 
 ---
@@ -282,17 +301,17 @@ Runs the complete clinical triage pipeline: Modality Guard pre-screening, neural
 curl -X POST "http://localhost:8000/api/v1/predict" \
      -H "accept: application/json" \
      -H "Content-Type: multipart/form-data" \
-     -F "file=@kidney_scan.jpg;type=image/jpeg" \
+     -F "file=@sample_ultrasound.jpg;type=image/jpeg" \
      -F "validate_scan=true"
 ```
 
-#### Sample Response (Valid Ultrasound Scan with Calculus):
+#### Sample Response (Calculus Detected):
 ```json
 {
   "is_valid_scan": true,
   "label": "Stone",
-  "probability": 0.8842,
-  "confidence": 88.42,
+  "probability": 0.9428,
+  "confidence": 94.28,
   "dilation_metrics": {
     "severity_level": "High / Acute Calculus",
     "dilation_status": "Moderate-to-Severe Pelvicalyceal Dilation (Likely Obstructive)",
@@ -314,33 +333,11 @@ curl -X POST "http://localhost:8000/api/v1/predict" \
 }
 ```
 
-#### Sample Response (OOD Non-Medical Image Rejection):
-```json
-{
-  "is_valid_scan": false,
-  "label": "Invalid (Non-Medical Image)",
-  "probability": 0.0,
-  "confidence": 0.0,
-  "dilation_metrics": null,
-  "gradcam_data_uri": null,
-  "validation_message": "Non-medical image detected (high chromaticity/color saturation). Kidney ultrasound scans are grayscale B-mode acoustic scans. Please upload an authentic B-mode kidney ultrasound image.",
-  "validation_metrics": {
-    "mean_saturation": 0.6277,
-    "high_saturation_ratio": 0.8285,
-    "channel_divergence": 173.93,
-    "contrast_std": 59.27,
-    "mean_intensity": 119.14,
-    "speckle_variance": 1030.61
-  },
-  "error": "Non-medical image detected (high chromaticity/color saturation)."
-}
-```
-
 ### 2. `POST /api/v1/validate`
 Lightweight pre-screening evaluating physical acoustic invariants in under **5ms** without running neural network inference.
 
 ### 3. `GET /api/v1/health`
-Health and readiness probe for Kubernetes / Docker container orchestrators:
+Readiness probe for Kubernetes / Docker container orchestrators:
 ```json
 {
   "status": "healthy",
@@ -351,22 +348,22 @@ Health and readiness probe for Kubernetes / Docker container orchestrators:
 
 ---
 
-## 🗄️ Dataset & Training Hygiene
+## 🚀 Production Deployment Guide
 
-The training and evaluation pipeline utilizes the open-source **[Kaggle Kidney Cancer / Calculus Image Dataset](https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image)**:
-* **Total Image Archive:** 26,168 scans.
-* **Curated Unique Cohort:** 15,086 scans utilized following SHA-256 hash deduplication.
-* **Zero-Leakage Guarantee:** Training, validation, and holdout test partitions are isolated prior to training. The `.gitignore` configuration guarantees that zero raw images or large model checkpoints are pushed to public Git trees.
+### A. Deploying Frontend to Vercel (Recommended)
+1. Import your GitHub repository into [Vercel](https://vercel.com).
+2. Configure project settings:
+   - **Framework Preset:** `Next.js`
+   - **Root Directory:** `frontend`
+3. Add Environment Variable:
+   - `NEXT_PUBLIC_API_URL` = `https://<your-backend-api-domain>`
+4. Click **Deploy**. Vercel will build the standalone Next.js application with automatic global CDN and SSL.
 
----
-
-## 🎨 Frontend Clinical Interface (Opensource UI)
-
-The web frontend is engineered according to the **Opensource UI** specification:
-- **Surfaces:** Pure white (`#FFFFFF`) and near-white (`zinc-50`) stages bounded by 1px neutral borders (`neutral-200`).
-- **Typography:** **Instrument Serif** for brand titles and display headers; **Inter** for clinical readouts and body text.
-- **Color Discipline:** Strictly semantic clinical accents: **Clinical Emerald (`emerald-600`)** for normal scans; **Clinical Rose (`rose-600`)** for calculus pathology and acute alerts.
-- **Micro-Interactions:** **Framer Motion** spring physics (`stiffness: 320, damping: 24`) powering the tactile dropzone and 3-state layout transitions.
+### B. Deploying Backend (FastAPI + MobileNetV2)
+Because the backend container is self-contained with trained model weights:
+* **Hugging Face Spaces (Free Docker Space - 16 GB RAM):** Create a new Docker Space, push the repo or point to the Dockerfile.
+* **Render / Railway:** Create a new Web Service using Docker, set port to `8000`.
+* **CORS Environment Configuration:** Set `CORS_ORIGINS=https://your-frontend.vercel.app` on the backend service.
 
 ---
 
@@ -384,9 +381,9 @@ The web frontend is engineered according to the **Opensource UI** specification:
 
 - **Lead Developer & AI Architect:** [Bappaditya Paul](https://github.com/bappaditya-paul)
 - **Repository:** [https://github.com/bappaditya-paul/kidney-stone-detection-aiml](https://github.com/bappaditya-paul/kidney-stone-detection-aiml)
-- **Dataset:** [Kaggle Kidney Cancer / Calculus Dataset](https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image)
+- **Dataset Reference:** [Kaggle Kidney Cancer / Calculus Dataset](https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image)
 
 ---
 
 ## 📄 License
-This project is licensed under the [MIT License](LICENSE).
+This project is open-source under the [MIT License](LICENSE).

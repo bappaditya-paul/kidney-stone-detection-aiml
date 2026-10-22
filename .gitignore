@@ -54,6 +54,13 @@ temp_*.png
 *.tiff
 *.webp
 
+# Whitelist documentation assets and UI screenshots
+!docs/assets/**
+!docs/**/*.png
+!docs/**/*.jpg
+!docs/**/*.svg
+!frontend/public/samples/*.jpg
+
 # ==========================================
 # NumPy Arrays & Cached Datasets
 # ==========================================
