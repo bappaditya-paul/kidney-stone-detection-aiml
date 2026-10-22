@@ -80,26 +80,35 @@ While non-contrast computed tomography (NCCT) is historically sensitive, clinica
 Standard binary CNNs operate in a closed-world assumption. When users accidentally upload non-medical images (e.g. photos of pets, documents, or outdoor scenes), high-contrast borders trigger hyperechoic convolutional filters, producing **severe false-positive stone detections**.
 
 Prior to allocating CPU/GPU compute, KidneyAI enforces **4 physical acoustic invariant gates**:
-* **HSV Color Saturation Gate:** $\overline{S} \le 0.18$ & high-saturation fraction $\le 0.12$ (rejects chromatic natural photography).
-* **RGB Channel Divergence Gate:** $\Delta_{\text{RGB}} = \frac{1}{N} \sum (|R-G| + |G-B| + |B-R|) \le 16.0$ (enforces monochromatic B-mode acoustic gray).
-* **Acoustic Speckle Texture Gate:** Discrete Laplacian variance $\text{Var}(\nabla^2 I) \ge 8.0$ (validates constructive/destructive wave interference, rejecting flat digital art and text).
-* **Dynamic Intensity & Contrast Gate:** $\sigma_I \ge 15.0$ and $8.0 \le \mu_I \le 235.0$ (purges blank probe-off or saturated frames).
+* **HSV Color Saturation Gate:** Mean saturation $\bar{S} \le 0.18$ and high-saturation ratio $\le 0.12$ (rejects chromatic natural photography).
+* **RGB Channel Divergence Gate:** Enforces monochromatic B-mode acoustic gray:
+  $$\Delta_{\text{RGB}} = \frac{1}{N} \sum_{i=1}^{N} \Big(|R_i - G_i| + |G_i - B_i| + |B_i - R_i|\Big) \le 16.0$$
+* **Acoustic Speckle Texture Gate:** Discrete Laplacian variance $\operatorname{Var}(\nabla^2 I) \ge 8.0$ (detects constructive/destructive wave interference, rejecting flat digital art and text).
+* **Dynamic Intensity & Contrast Gate:** Contrast standard deviation $\sigma_I \ge 15.0$ and dynamic mean range $8.0 \le \mu_I \le 235.0$ (purges blank probe-off or saturated frames).
 
 ### 2. ⚡ MobileNetV2 Deep Feature Extractor
 * Employs **depthwise separable convolutions** with inverted residual linear bottlenecks, delivering an **88.8% computational FLOP reduction** compared to conventional dense CNN backbones:
-  $$\frac{\text{Cost}_{\text{Separable}}}{\text{Cost}_{\text{Standard}}} \approx \frac{1}{N} + \frac{1}{D_k^2} \approx \frac{1}{3^2} = \frac{1}{9}$$
-* **Tensor Flow:** $(224 \times 224 \times 3) \rightarrow \text{MobileNetV2 Base} \rightarrow \text{out\_relu } (7 \times 7 \times 1280) \rightarrow \text{GAP} \rightarrow \text{Dropout}(0.3) \rightarrow \text{Dense}(128, \text{ReLU}) \rightarrow \text{Dense}(1, \text{Sigmoid})$.
+  $$\text{FLOPs Ratio} \approx \frac{1}{N} + \frac{1}{D_k^2} \approx \frac{1}{3^2} = \frac{1}{9} \quad (\approx 88.8\%\text{ reduction})$$
+
+* **Tensor Flow Pipeline:**
+  ```text
+  [Input: 224×224×3] ➔ [MobileNetV2 Base] ➔ [out_relu: 7×7×1280] ➔ [GlobalAvgPool2D] ➔ [Dropout (0.3)] ➔ [Dense (128, ReLU)] ➔ [Dense (1, Sigmoid)]
+  ```
 
 ### 3. 🔍 Explainable AI (Grad-CAM Saliency)
-Clinicians cannot base interventions on opaque scalar probabilities ($P=0.96$). KidneyAI computes feature-map gradients from the final convolutional layer (`out_relu`):
-$$\alpha_k^c = \frac{1}{Z} \sum_{i=1}^{U} \sum_{j=1}^{V} \frac{\partial y^c}{\partial A_{i, j}^k}, \quad L_{\text{Grad-CAM}}^c = \text{ReLU}\left( \sum_k \alpha_k^c A^k \right)$$
-The resulting activation map is alpha-composited over the original scan ($0.65 \cdot I_{\text{Original}} + 0.35 \cdot \text{ColorMap}_{\text{JET}}(L^c)$), visually verifying whether the network is focused on genuine hyperechoic calculus foci and posterior acoustic shadows.
+Clinicians cannot base interventions on opaque scalar probabilities ($P = 0.96$). KidneyAI computes feature-map gradients from the final convolutional layer (`out_relu`):
+
+$$\alpha_k^c = \frac{1}{Z} \sum_{i=1}^{U} \sum_{j=1}^{V} \frac{\partial y^c}{\partial A_{i, j}^k}, \quad L_{\text{Grad-CAM}}^c = \operatorname{ReLU}\left( \sum_k \alpha_k^c A^k \right)$$
+
+The resulting activation map is alpha-composited over the original scan:
+$$I_{\text{Composite}} = 0.65 \cdot I_{\text{Original}} + 0.35 \cdot \text{ColorMap}_{\text{Jet}}(L^c)$$
+visually verifying whether the network is focused on genuine hyperechoic calculus foci and posterior acoustic shadows.
 
 ### 4. 📊 Secondary Pelvicalyceal Dilation & Severity Index
 Translates prediction confidence and spatial stone footprint into actionable urological obstruction grading:
 * **$P < 0.50$ (Normal / Unremarkable):** Unremarkable parenchyma, 0% hydronephrosis risk.
 * **$0.50 \le P \le 0.65$ (Borderline / Small Calculus):** Minimal pelvic separation ($\le 5\text{ mm}$), ~25% hydronephrosis risk.
-* **$0.65 < P \le 0.85$ (Moderate Calculus):** Definite dilation ($\sim 10 - 15\text{ mm}$), ~50% hydronephrosis risk.
+* **$0.65 < P \le 0.85$ (Moderate Calculus):** Definite dilation ($\approx 10\text{--}15\text{ mm}$), ~50% hydronephrosis risk.
 * **$P > 0.85$ (Acute Calculus / Obstructive):** Marked caliceal ballooning, >75% hydronephrosis risk. Urgent urological evaluation advised.
 
 ---
@@ -154,7 +163,7 @@ flowchart TD
 
 The model was rigorously evaluated against an independent, strictly isolated holdout test split of **1,676 clinical ultrasound scans**:
 
-$$\text{Overall Test Accuracy} = \frac{TP + TN}{TP + TN + FP + FN} = \mathbf{98.87\%}$$
+$$\text{Overall Test Accuracy} = \frac{\text{TP} + \text{TN}}{\text{TP} + \text{TN} + \text{FP} + \text{FN}} = \mathbf{98.87\%}$$
 
 | Classification Class | Precision | Recall (Sensitivity) | F1-Score | Specificity | Holdout Test Scans |
 | :--- | :---: | :---: | :---: | :---: | :---: |
