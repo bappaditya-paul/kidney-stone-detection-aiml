@@ -9,6 +9,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.log
+logs/
 .DS_Store
 *.swp
 *.swo
@@ -60,10 +61,31 @@ temp_*.png
 *.npz
 
 # ==========================================
-# Large Model Weights (Optional: Recommend DVC / Git LFS / Releases)
+# Model Weights (Keep only single canonical production checkpoint)
 # ==========================================
-# Uncomment to exclude large weights from Git:
-# models/*.h5
-# models/*.keras
-# models/*.pt
-# models/*.pth
+models/*.h5
+models/*.keras
+models/*.pt
+models/*.pth
+ml_pipeline/models/*.keras
+ml_pipeline/models/*.pt
+ml_pipeline/models/*.pth
+
+# Whitelist the canonical trained weights needed for backend inference
+!ml_pipeline/models/best_model.h5
+
+# ==========================================
+# Clinical Export Reports & Generated Artifacts
+# ==========================================
+KidneyAI_Report_*.txt
+*Report*.txt
+report_*.pdf
+report_*.txt
+
+# ==========================================
+# Docker Build Caches & Packaging
+# ==========================================
+.docker/
+*.tar
+*.gz
+
