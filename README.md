@@ -11,12 +11,13 @@
 [![Test Accuracy: 98.87%](https://img.shields.io/badge/Test_Accuracy-98.87%25-success.svg)](https://github.com/bappaditya-paul/kidney-stone-detection-aiml)
 [![Modality Guard](https://img.shields.io/badge/Modality_Guard-OOD_Protected-blue.svg)](https://github.com/bappaditya-paul/kidney-stone-detection-aiml)
 [![Docker Ready](https://img.shields.io/badge/Docker-Multi--stage_Built-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces%20Live-yellow.svg)](https://huggingface.co/spaces/bappa-ai/kidney-stone-detection)
 [![Kaggle Dataset](https://img.shields.io/badge/Kaggle-Dataset-20BEFF.svg?logo=kaggle&logoColor=white)](https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image)
 
 <p align="center">
-  <a href="http://localhost:3000"><strong>🌐 Live Clinical Dashboard</strong></a> •
-  <a href="http://localhost:3000/docs"><strong>📖 Interactive Documentation Portal</strong></a> •
-  <a href="http://localhost:8000/docs"><strong>⚡ FastAPI Swagger API</strong></a> •
+  <a href="https://huggingface.co/spaces/bappa-ai/kidney-stone-detection"><strong>🤗 Live Hugging Face Space</strong></a> •
+  <a href="https://bappa-ai-kidney-stone-detection.hf.space"><strong>⚡ Cloud Model API</strong></a> •
+  <a href="http://localhost:3000"><strong>🌐 Clinical Web Cockpit</strong></a> •
   <a href="https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image"><strong>📊 Kaggle Dataset</strong></a>
 </p>
 

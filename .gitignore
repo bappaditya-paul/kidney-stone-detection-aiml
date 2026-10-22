@@ -90,9 +90,8 @@ report_*.pdf
 report_*.txt
 
 # ==========================================
-# Docker Build Caches & Packaging
+# Deployment Bundles & Staging
 # ==========================================
-.docker/
-*.tar
-*.gz
+hf_deployment/
+
 
