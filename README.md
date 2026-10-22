@@ -82,13 +82,13 @@ Standard binary CNNs operate in a closed-world assumption. When users accidental
 Prior to allocating CPU/GPU compute, KidneyAI enforces **4 physical acoustic invariant gates**:
 * **HSV Color Saturation Gate:** Mean saturation $\bar{S} \le 0.18$ and high-saturation ratio $\le 0.12$ (rejects chromatic natural photography).
 * **RGB Channel Divergence Gate:** Enforces monochromatic B-mode acoustic gray:
-  $$\Delta_{\text{RGB}} = \frac{1}{N} \sum_{i=1}^{N} \Big(|R_i - G_i| + |G_i - B_i| + |B_i - R_i|\Big) \le 16.0$$
-* **Acoustic Speckle Texture Gate:** Discrete Laplacian variance $\operatorname{Var}(\nabla^2 I) \ge 8.0$ (detects constructive/destructive wave interference, rejecting flat digital art and text).
+  $$\Delta_{\text{RGB}} = \frac{1}{N} \sum_{i=1}^{N} (|R_i - G_i| + |G_i - B_i| + |B_i - R_i|) \le 16.0$$
+* **Acoustic Speckle Texture Gate:** Discrete Laplacian variance $\sigma^2(\nabla^2 I) \ge 8.0$ (detects constructive/destructive wave interference, rejecting flat digital art and text).
 * **Dynamic Intensity & Contrast Gate:** Contrast standard deviation $\sigma_I \ge 15.0$ and dynamic mean range $8.0 \le \mu_I \le 235.0$ (purges blank probe-off or saturated frames).
 
 ### 2. ⚡ MobileNetV2 Deep Feature Extractor
 * Employs **depthwise separable convolutions** with inverted residual linear bottlenecks, delivering an **88.8% computational FLOP reduction** compared to conventional dense CNN backbones:
-  $$\text{FLOPs Ratio} \approx \frac{1}{N} + \frac{1}{D_k^2} \approx \frac{1}{3^2} = \frac{1}{9} \quad (\approx 88.8\%\text{ reduction})$$
+  $$\text{FLOPs Ratio} \approx \frac{1}{N} + \frac{1}{D_k^2} \approx \frac{1}{3^2} = \frac{1}{9}$$
 
 * **Tensor Flow Pipeline:**
   ```text
@@ -98,10 +98,10 @@ Prior to allocating CPU/GPU compute, KidneyAI enforces **4 physical acoustic inv
 ### 3. 🔍 Explainable AI (Grad-CAM Saliency)
 Clinicians cannot base interventions on opaque scalar probabilities ($P = 0.96$). KidneyAI computes feature-map gradients from the final convolutional layer (`out_relu`):
 
-$$\alpha_k^c = \frac{1}{Z} \sum_{i=1}^{U} \sum_{j=1}^{V} \frac{\partial y^c}{\partial A_{i, j}^k}, \quad L_{\text{Grad-CAM}}^c = \operatorname{ReLU}\left( \sum_k \alpha_k^c A^k \right)$$
+$$\alpha_k^c = \frac{1}{Z} \sum_{i=1}^{U} \sum_{j=1}^{V} \frac{\partial y^c}{\partial A_{i, j}^k}, \quad L_{\text{Grad-CAM}}^c = \max\left(0, \sum_k \alpha_k^c A^k \right)$$
 
 The resulting activation map is alpha-composited over the original scan:
-$$I_{\text{Composite}} = 0.65 \cdot I_{\text{Original}} + 0.35 \cdot \text{ColorMap}_{\text{Jet}}(L^c)$$
+$$I_{\text{Composite}} = 0.65 \cdot I_{\text{Original}} + 0.35 \cdot I_{\text{Heatmap}}$$
 visually verifying whether the network is focused on genuine hyperechoic calculus foci and posterior acoustic shadows.
 
 ### 4. 📊 Secondary Pelvicalyceal Dilation & Severity Index
@@ -163,7 +163,7 @@ flowchart TD
 
 The model was rigorously evaluated against an independent, strictly isolated holdout test split of **1,676 clinical ultrasound scans**:
 
-$$\text{Overall Test Accuracy} = \frac{\text{TP} + \text{TN}}{\text{TP} + \text{TN} + \text{FP} + \text{FN}} = \mathbf{98.87\%}$$
+$$\text{Overall Test Accuracy} = \frac{\text{TP} + \text{TN}}{\text{TP} + \text{TN} + \text{FP} + \text{FN}} = 0.9887 \quad (\mathbf{98.87\%})$$
 
 | Classification Class | Precision | Recall (Sensitivity) | F1-Score | Specificity | Holdout Test Scans |
 | :--- | :---: | :---: | :---: | :---: | :---: |
