@@ -1,0 +1,44 @@
+# Git and Documentation
+.git/
+.github/
+docs/
+
+# Python Virtual Environments & Cache
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+logs/
+
+# Node & Frontend Build Artifacts
+node_modules/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+
+# Datasets & Heavy Local Data
+raw_dataset/
+raw_dataset_clean/
+data/
+preprocessed_data/
+ml_pipeline/datasets/
+quarantine/
+temp_image.jpg
+temp_*.jpg
+temp_*.png
+KidneyAI_Report_*.txt
+*Report*.txt
+report_*.pdf
+report_*.txt
+
+# OS Files
+.DS_Store
+Thumbs.db

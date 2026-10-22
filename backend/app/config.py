@@ -24,14 +24,21 @@ class Settings:
     THRESHOLD: float = 0.5
     CLASS_NAMES: list = ["No Stone", "Stone"]
     
-    # CORS Origins (allow frontend dev server and standard ports)
+    # CORS Origins (allow frontend dev server and production deployments)
     CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:8501",
-        "http://127.0.0.1:8501",
-        "*"
+        origin.strip()
+        for origin in os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:3000,http://127.0.0.1:3000,http://localhost:8501,http://127.0.0.1:8501"
+        ).split(",")
+        if origin.strip()
     ]
+    
+    # Regex to support all Vercel, Netlify, and Cloudflare frontend preview/production URLs
+    CORS_ORIGIN_REGEX: str = os.getenv(
+        "CORS_ORIGIN_REGEX",
+        r"https://.*(\.vercel\.app|\.netlify\.app|\.pages\.dev|\.onrender\.com|\.hf\.space)"
+    )
     
     # Modality Guard Thresholds (Out-of-Distribution validation)
     MAX_MEAN_SATURATION: float = 0.18

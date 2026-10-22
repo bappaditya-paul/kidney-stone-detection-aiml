@@ -16,6 +16,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend code
 COPY backend/app /app/app
 
+# Copy model checkpoint for standalone deployment
+COPY ml_pipeline/models/best_model.h5 /app/models/best_model.h5
+
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV MODEL_PATH=/app/models/best_model.h5
