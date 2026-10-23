@@ -8,6 +8,7 @@
 [![TensorFlow: 2.15+](https://img.shields.io/badge/TensorFlow-2.15+-FF6F00.svg?logo=tensorflow&logoColor=white)](https://tensorflow.org/)
 [![FastAPI: 0.110+](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Next.js: 14](https://img.shields.io/badge/Next.js-14.2-000000.svg?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Vercel: Live App](https://img.shields.io/badge/Vercel-Live%20Production-black.svg?logo=vercel&logoColor=white)](https://kidneystonedetection.vercel.app)
 [![Test Accuracy: 98.87%](https://img.shields.io/badge/Test_Accuracy-98.87%25-success.svg)](https://github.com/bappaditya-paul/kidney-stone-detection-aiml)
 [![Modality Guard](https://img.shields.io/badge/Modality_Guard-OOD_Protected-blue.svg)](https://github.com/bappaditya-paul/kidney-stone-detection-aiml)
 [![Docker Ready](https://img.shields.io/badge/Docker-Multi--stage_Built-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
@@ -15,9 +16,9 @@
 [![Kaggle Dataset](https://img.shields.io/badge/Kaggle-Dataset-20BEFF.svg?logo=kaggle&logoColor=white)](https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image)
 
 <p align="center">
+  <a href="https://kidneystonedetection.vercel.app"><strong>🌐 Live Clinical Web App (Vercel)</strong></a> •
   <a href="https://huggingface.co/spaces/bappa-ai/kidney-stone-detection"><strong>🤗 Live Hugging Face Space</strong></a> •
   <a href="https://bappa-ai-kidney-stone-detection.hf.space"><strong>⚡ Cloud Model API</strong></a> •
-  <a href="http://localhost:3000"><strong>🌐 Clinical Web Cockpit</strong></a> •
   <a href="https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image"><strong>📊 Kaggle Dataset</strong></a>
 </p>
 
@@ -44,6 +45,7 @@
 - [Quickstart Guide](#-quickstart-guide)
 - [FastAPI Microservice Endpoints](#-fastapi-microservice-endpoints)
 - [Production Deployment Guide](#-production-deployment-guide)
+- [Model Limitations & Out-Of-Distribution (OOD) Behavior (Quick Summary)](#-model-limitations--out-of-distribution-ood-behavior-quick-summary)
 - [Clinical Disclaimers & Ethics](#-clinical-disclaimers--ethics)
 - [Authors & License](#-authors--license)
 
@@ -374,6 +376,53 @@ Because the backend container is self-contained with trained model weights:
 * **Hugging Face Spaces (Free Docker Space - 16 GB RAM):** Create a new Docker Space, push the repo or point to the Dockerfile.
 * **Render / Railway:** Create a new Web Service using Docker, set port to `8000`.
 * **CORS Environment Configuration:** Set `CORS_ORIGINS=https://your-frontend.vercel.app` on the backend service.
+
+---
+
+## ⚠️ Model Limitations & Out-Of-Distribution (OOD) Behavior (Quick Summary)
+
+> [!IMPORTANT]
+> **Summary at a Glance:**  
+> NephroScan AI is trained **exclusively on B-mode renal ultrasound scans**. Because deep learning classifiers operate on a **closed-world assumption**, understanding how the AI treats non-medical images (wallpapers, photos, laptop screenshots) is essential for accurate evaluation.
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 HOW THE SYSTEM HANDLES UPLOADS                         │
+├───────────────────────────────┬─────────────────────────────┬──────────────────────────┤
+│ Upload Type                   │ What Happens?               │ Why?                     │
+├───────────────────────────────┼─────────────────────────────┼──────────────────────────┤
+│ 🩺 Real Kidney Ultrasound     │ ✅ Processed by AI          │ Correct grayscale &      │
+│                               │    (Stone / No Stone)       │ tissue speckle pattern   │
+├───────────────────────────────┼─────────────────────────────┼──────────────────────────┤
+│ 🏖️ Colorful Photos            │ 🚫 Rejected Instantly       │ Caught by built-in       │
+│    (Beaches, Canyons, People) │    ("Invalid Non-Medical")  │ Modality Guard (colors)  │
+├───────────────────────────────┼─────────────────────────────┼──────────────────────────┤
+│ 💻 Dark Laptop / Terminal     │ ⚠️ Shows "Stone Detected"   │ Black-and-white text on  │
+│    Screenshots (Dark Mode)    │    (False Positive)         │ dark screens mimics      │
+│                               │                             │ bright stone reflections │
+└───────────────────────────────┴─────────────────────────────┴──────────────────────────┘
+```
+
+### 🔍 Plain-English Explanation: Why Does This Happen?
+
+1. **The "Closed-World" Rule (No "Other" Class):**
+   * The neural network was trained on two medical classes: `Class 0 (Normal Ultrasound)` vs. `Class 1 (Kidney Stone Ultrasound)`.
+   * The model has **never seen** a code editor, terminal, desktop wallpaper, or beach.
+   * Because it uses a binary Sigmoid function ($0\%$ to $100\%$), it is mathematically forced to pick either *Stone* or *No Stone*. It cannot output *"This is a computer screen"*.
+
+2. **Why Dark Laptop / Terminal Screenshots Show "Stone (100%)":**
+   * In clinical ultrasound, a kidney stone appears as a **bright white spot (hyperechoic reflector)** surrounded by a **dark background (acoustic shadow)**.
+   * To a convolutional neural network (CNN), **bright white text characters on a pitch-black terminal window look almost identical to bright calcifications on dark acoustic tissue**. The model's filters fire at full strength, producing a false positive.
+
+3. **Why Wallpapers and Photos Get Blocked:**
+   * Ultrasound scans are strictly grayscale (black, white, and shades of gray).
+   * Our **Modality Guard** inspects the color saturation and RGB channel divergence of every uploaded image. Colorful images (like canyon wallpapers or ocean photos) are immediately blocked before the neural network ever sees them.
+   * However, dark-mode terminal screens have almost zero color, which allows them to slip past simple color filters.
+
+### 📋 Recommended Best Practices
+* **Upload Authentic Scans:** Only test with genuine B-mode kidney ultrasound images or DICOM exports.
+* **Inspect the Grad-CAM Heatmap:** When an image is classified, look at the visual heatmap. In a genuine medical scan, the heat will localize to kidney anatomy. On a screenshot, the heat will highlight text lines or UI borders.
+* **Clinical Verification:** This software is a CADe research prototype and must always be corroborated by a licensed clinician or radiologist.
 
 ---
 
