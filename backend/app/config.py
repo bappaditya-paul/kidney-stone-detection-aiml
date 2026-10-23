@@ -41,9 +41,9 @@ class Settings:
     )
     
     # Modality Guard Thresholds (Out-of-Distribution validation)
-    MAX_MEAN_SATURATION: float = 0.18
-    MAX_HIGH_SAT_RATIO: float = 0.12
-    MAX_CHANNEL_DIVERGENCE: float = 16.0
+    MAX_MEAN_SATURATION: float = 0.22
+    MAX_HIGH_SAT_RATIO: float = 0.15
+    MAX_CHANNEL_DIVERGENCE: float = 25.0
     MIN_CONTRAST_STD: float = 15.0
     MIN_SPECKLE_VARIANCE: float = 8.0
     MAX_MEAN_INTENSITY: float = 235.0

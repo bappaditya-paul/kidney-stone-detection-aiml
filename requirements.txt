@@ -8,3 +8,7 @@ Pillow>=8.3.1
 streamlit>=1.10.0
 opencv-python>=4.5.0
 tqdm>=4.62.0
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+gradio>=5.15.0
+

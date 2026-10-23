@@ -54,8 +54,21 @@ def verify_ml_pipeline():
         print("               Run 'python ml_pipeline/train.py' to generate model weights.")
 
 
+def free_ports(ports=(3000, 8000)):
+    """Terminate any orphaned processes holding required ports before starting."""
+    for port in ports:
+        try:
+            subprocess.run(["fuser", "-k", f"{port}/tcp"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception:
+            try:
+                subprocess.run(f"lsof -ti :{port} | xargs -r kill -9", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception:
+                pass
+
+
 def main():
     verify_ml_pipeline()
+    free_ports((3000, 8000))
 
     # Verify frontend node_modules
     if not (FRONTEND_DIR / "node_modules").exists():
