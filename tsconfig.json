@@ -15,6 +15,7 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
+      "@/*": ["frontend/src/*", "./frontend/src/*"],
       "*": ["frontend/node_modules/*"]
     }
   },

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { Header } from "@/components/Header";
-import { EngineTab } from "@/components/EngineTab";
-import { DocsTab } from "@/components/DocsTab";
+import { Header } from "../components/Header";
+import { EngineTab } from "../components/EngineTab";
+import { DocsTab } from "../components/DocsTab";
 
 const tabTransition: Variants = {
   initial: { opacity: 0, y: 12, filter: "blur(3px)" },
