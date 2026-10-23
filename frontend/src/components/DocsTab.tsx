@@ -46,6 +46,32 @@ export const DocsTab: React.FC = () => {
           Learn how acoustic impedance physics, Out-of-Distribution modality guards, MobileNetV2
           bottlenecks, and Grad-CAM explainability unite to detect renal calculi with 98.87% accuracy.
         </p>
+
+        {/* Important Model Limitation Banner */}
+        <div className="mt-8 bg-amber-500/10 border border-amber-500/30 rounded-3xl p-5 sm:p-6 text-zinc-800 shadow-2xs">
+          <div className="flex items-start gap-3.5">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+              <AlertTriangle size={20} />
+            </div>
+            <div className="space-y-1.5 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h4 className="text-sm font-semibold text-zinc-900">
+                  Critical Scope & Diagnostic Limitations
+                </h4>
+                <span className="px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900 text-[10px] font-mono font-medium">
+                  Binary Classifier Only (Stone vs. No Stone)
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-mono font-medium">
+                  Not a General Organ Scanner
+                </span>
+              </div>
+              <p className="text-xs text-zinc-600 leading-relaxed font-light">
+                NephroScan AI is trained <strong>strictly on two classes: Healthy Ultrasound vs. Kidney Stone Ultrasound</strong>. 
+                Because deep learning models operate under a <em>closed-world assumption</em>, the model <strong>cannot identify unknown objects</strong>, cysts, tumors, or other organs. Feeding it dark-mode laptop/terminal screenshots will cause false positive stone detections because white text characters mimic hyperechoic calculus reflections.
+              </p>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
       {/* GitHub & Kaggle Repository Cards (Prominently placed in Docs) */}
@@ -540,6 +566,68 @@ npm run dev`}</pre>
               Access the clinical dashboard at <code className="bg-zinc-100 px-1.5 py-0.5 rounded text-zinc-800 font-mono">http://localhost:3000</code>.
             </p>
           </div>
+        </div>
+      </motion.section>
+
+      {/* SECTION 6: Model Limitations & Out-Of-Distribution (OOD) Behavior */}
+      <motion.section variants={fadeUp} className="mb-16">
+        <div className="flex items-center gap-2 mb-2 text-rose-600 font-mono text-xs tracking-wider uppercase font-semibold">
+          <span>06</span>
+          <span>•</span>
+          <span>Failure Modes & Limitations</span>
+        </div>
+        <h2 className="text-3xl sm:text-4xl font-serif text-zinc-900 pb-3 border-b border-zinc-200 mb-6">
+          6. Model Limitations & Out-Of-Distribution (OOD) Failure Modes
+        </h2>
+
+        <p className="text-sm sm:text-base text-zinc-700 font-light leading-relaxed mb-6">
+          In clinical machine learning, communicating what a model <strong>cannot</strong> do is as vital as publishing its accuracy metrics.
+          NephroScan AI is an assistive research CADe prototype with explicit operational boundaries:
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="bg-white p-6 rounded-3xl border border-zinc-200/90 shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-3">
+              <AlertTriangle size={20} />
+            </div>
+            <h4 className="font-semibold text-zinc-900 mb-2 text-sm">Binary Closed-World Scope</h4>
+            <p className="text-xs text-zinc-600 font-light leading-relaxed">
+              Trained exclusively to separate <em>Calculus</em> from <em>Normal Renal Ultrasound</em>. It has never seen other abdominal organs (liver, gallbladder, spleen), and lacks open-world anomaly rejection.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-3xl border border-zinc-200/90 shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center mb-3">
+              <ShieldAlert size={20} />
+            </div>
+            <h4 className="font-semibold text-zinc-900 mb-2 text-sm">Laptop Screenshot Artifacts</h4>
+            <p className="text-xs text-zinc-600 font-light leading-relaxed">
+              Dark-mode terminals and IDEs feature bright white text against black backdrops. To convolutional filters, this high-contrast gradient pattern is mathematically identical to hyperechoic calculi, triggering false positives.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-3xl border border-zinc-200/90 shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-3">
+              <ShieldCheck size={20} />
+            </div>
+            <h4 className="font-semibold text-zinc-900 mb-2 text-sm">Modality Guard Protection</h4>
+            <p className="text-xs text-zinc-600 font-light leading-relaxed">
+              General colorful photos (beaches, wallpapers, landscapes) are intercepted by acoustic chromaticity filters (mean saturation &gt; 0.22, RGB divergence &gt; 25.0) and rejected before reaching the CNN.
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-zinc-900 text-zinc-200 rounded-3xl p-6 sm:p-8 font-light text-xs sm:text-sm leading-relaxed border border-zinc-800">
+          <h4 className="font-semibold text-white mb-2 text-base flex items-center gap-2">
+            <BookOpen size={18} className="text-emerald-400" />
+            Key Clinical Takeaway for Evaluators
+          </h4>
+          <p className="mb-3 text-zinc-300">
+            Never feed non-medical computer screenshots, non-renal CTs, or arbitrary camera photos to the model. Always inspect the <strong>Grad-CAM visual explanation</strong>: in an authentic scan, the activation focus must map anatomically to the renal pelvis, calyces, or parenchyma.
+          </p>
+          <p className="text-zinc-400 text-xs">
+            NephroScan AI is not an FDA 510(k) cleared diagnostic device. Output must always be interpreted in conjunction with patient symptoms, laboratory analysis, and expert physician evaluation.
+          </p>
         </div>
       </motion.section>
     </motion.div>

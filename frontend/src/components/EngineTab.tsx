@@ -52,7 +52,7 @@ export const EngineTab: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://bappa-ai-kidney-stone-detection.hf.space";
 
   // Synthesized tactile audio cue
   const playSound = (type: "click" | "resolve") => {
@@ -726,6 +726,46 @@ validated by a board-certified radiologist or urologist.
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Model Scope & Diagnostic Limitations Box */}
+        <motion.div
+          variants={fadeUp}
+          className="mt-8 bg-amber-500/10 border border-amber-500/30 rounded-3xl p-5 sm:p-6 text-zinc-800 shadow-2xs"
+        >
+          <div className="flex items-start gap-3.5">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+              <AlertTriangle size={20} />
+            </div>
+            <div className="space-y-2 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h4 className="text-sm font-semibold text-zinc-900">
+                  Critical Model Scope & Limitations Advisory
+                </h4>
+                <span className="px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900 text-[10px] font-mono font-medium">
+                  Binary Classification Only
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-zinc-200/80 text-zinc-700 text-[10px] font-mono font-medium">
+                  Not a General Organ Scanner
+                </span>
+              </div>
+              <p className="text-xs text-zinc-600 leading-relaxed font-light">
+                <strong>Closed-World Binary Assumption:</strong> This deep learning network is specifically trained to classify 
+                <strong> only two states</strong>: <em>Healthy Kidney Ultrasound</em> vs. <em>Renal Calculus (Kidney Stone)</em>. 
+                It is <strong>not</strong> a broad medical vision model and cannot detect renal cysts, oncocytomas, carcinoma, hydronephrosis etiologies, or general abdominal organs.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px] text-zinc-600 font-light">
+                <div className="bg-white/85 p-3 rounded-2xl border border-amber-200/70 shadow-2xs">
+                  <span className="font-semibold text-rose-700 block mb-0.5">⚠️ Dark Laptop / Terminal False Positives:</span>
+                  Screenshots of code editors, terminals, or dark-mode operating systems with bright white text characters mimic hyperechoic calcium reflections. Because the model has no concept of &quot;computer screens&quot;, it will erroneously output a 100% stone detection.
+                </div>
+                <div className="bg-white/85 p-3 rounded-2xl border border-amber-200/70 shadow-2xs">
+                  <span className="font-semibold text-emerald-700 block mb-0.5">🛡️ Automated Photo Interception:</span>
+                  Colorful photographs (nature wallpapers, beaches, human portraits) are automatically intercepted and rejected by the built-in acoustic modality guard before classification.
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </motion.div>
     </motion.div>
   );

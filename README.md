@@ -16,10 +16,11 @@
 [![Kaggle Dataset](https://img.shields.io/badge/Kaggle-Dataset-20BEFF.svg?logo=kaggle&logoColor=white)](https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image)
 
 <p align="center">
-  <a href="https://kidneystonedetection.vercel.app"><strong>🌐 Live Clinical Web App (Vercel)</strong></a> •
-  <a href="https://huggingface.co/spaces/bappa-ai/kidney-stone-detection"><strong>🤗 Live Hugging Face Space</strong></a> •
-  <a href="https://bappa-ai-kidney-stone-detection.hf.space"><strong>⚡ Cloud Model API</strong></a> •
-  <a href="https://www.kaggle.com/datasets/jayaprakashpondy/kidney-cancer-image"><strong>📊 Kaggle Dataset</strong></a>
+  <a href="https://kidneystonedetection.vercel.app"><strong>🌐 Primary Live App</strong></a> •
+  <a href="https://kidney-stone-detection-ai.vercel.app"><strong>🌐 Alternate Domain 1</strong></a> •
+  <a href="https://nephroscan-ai.vercel.app"><strong>🌐 Alternate Domain 2</strong></a> •
+  <a href="https://huggingface.co/spaces/bappa-ai/kidney-stone-detection"><strong>🤗 HF Space</strong></a> •
+  <a href="https://bappa-ai-kidney-stone-detection.hf.space"><strong>⚡ Cloud Model API</strong></a>
 </p>
 
 ---
@@ -383,7 +384,7 @@ Because the backend container is self-contained with trained model weights:
 
 > [!IMPORTANT]
 > **Summary at a Glance:**  
-> NephroScan AI is trained **exclusively on B-mode renal ultrasound scans**. Because deep learning classifiers operate on a **closed-world assumption**, understanding how the AI treats non-medical images (wallpapers, photos, laptop screenshots) is essential for accurate evaluation.
+> NephroScan AI is trained **strictly on two specific classes: B-mode renal ultrasound with Stone vs. No Stone**. It is **not** a broad/general-purpose organ scanner and cannot detect cysts, tumors, or other conditions. Because deep learning models operate under a **closed-world assumption**, understanding how the AI treats non-medical images (laptop screenshots, wallpapers) is essential to avoid misinterpreting failures or false positives.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -405,10 +406,10 @@ Because the backend container is self-contained with trained model weights:
 
 ### 🔍 Plain-English Explanation: Why Does This Happen?
 
-1. **The "Closed-World" Rule (No "Other" Class):**
-   * The neural network was trained on two medical classes: `Class 0 (Normal Ultrasound)` vs. `Class 1 (Kidney Stone Ultrasound)`.
-   * The model has **never seen** a code editor, terminal, desktop wallpaper, or beach.
-   * Because it uses a binary Sigmoid function ($0\%$ to $100\%$), it is mathematically forced to pick either *Stone* or *No Stone*. It cannot output *"This is a computer screen"*.
+1. **The "Closed-World" Binary Rule (Only 2 Classes, Not a Broad Scanner):**
+   * The neural network was trained on exactly two specific classes: `Class 0 (Normal Ultrasound)` vs. `Class 1 (Kidney Stone Ultrasound)`.
+   * It is **not a broad/general medical vision model**—it cannot recognize liver, gallbladder, cysts, tumors, or non-medical objects.
+   * The model ends in a binary Sigmoid mathematical formula ($0\%$ to $100\%$). It is mathematically forced to classify every input into either *Stone* or *No Stone*. It cannot say *"This is a computer screen"* or *"This is another disease"*.
 
 2. **Why Dark Laptop / Terminal Screenshots Show "Stone (100%)":**
    * In clinical ultrasound, a kidney stone appears as a **bright white spot (hyperechoic reflector)** surrounded by a **dark background (acoustic shadow)**.
@@ -420,9 +421,9 @@ Because the backend container is self-contained with trained model weights:
    * However, dark-mode terminal screens have almost zero color, which allows them to slip past simple color filters.
 
 ### 📋 Recommended Best Practices
-* **Upload Authentic Scans:** Only test with genuine B-mode kidney ultrasound images or DICOM exports.
+* **Upload Authentic Scans Only:** Only test with genuine B-mode kidney ultrasound images or DICOM exports.
 * **Inspect the Grad-CAM Heatmap:** When an image is classified, look at the visual heatmap. In a genuine medical scan, the heat will localize to kidney anatomy. On a screenshot, the heat will highlight text lines or UI borders.
-* **Clinical Verification:** This software is a CADe research prototype and must always be corroborated by a licensed clinician or radiologist.
+* **Clinical Verification:** This software is an assistive research CADe prototype and is **not an autonomous or 100% infallible medical diagnostic tool**. All findings must always be corroborated by a licensed clinician or radiologist.
 
 ---
 
